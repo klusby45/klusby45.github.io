@@ -12,6 +12,7 @@
             margin: 0;
             padding: 0;
             background-color: #f5f5f5;
+            line-height: 1.6;
         }
         header {
             background-color: #f0e4d7;
@@ -35,14 +36,19 @@
             text-align: center;
             padding: 14px 16px;
             text-decoration: none;
+            transition: background-color 0.3s ease;
         }
         nav a:hover {
             background-color: #a26745;
         }
+        .container {
+            width: 80%;
+            margin: 20px auto;
+        }
         section {
             padding: 20px;
             background-color: #fff;
-            margin: 10px;
+            margin: 20px 0;
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
         }
@@ -52,23 +58,30 @@
             text-align: center;
             padding: 10px;
             border-top: 2px solid #d4a373;
+            position: fixed;
+            width: 100%;
+            bottom: 0;
         }
-        .container {
-            width: 80%;
-            margin: 0 auto;
-        }
-        h2 {
+        h1, h2 {
             color: #d4a373;
+            margin-top: 0;
         }
-        ul {
-            list-style-type: none;
-            padding: 0;
+        .about-image, .music-image {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
         }
-        ul li {
-            background-color: #e0f7fa;
-            margin: 5px 0;
-            padding: 10px;
-            border-radius: 4px;
+        .contact-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .contact-info a {
+            color: #d4a373;
+            text-decoration: none;
+        }
+        .contact-info a:hover {
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -86,6 +99,7 @@
     <div class="container">
         <section id="about-me">
             <h2>About Me</h2>
+            <img src="about-me.jpg" alt="Kyle" class="about-image">
             <p>Hello! My name is Kyle, and I am a passionate professional in sales at Snackpass. I have a diverse background that includes acting and modeling, which I pursued alongside my main career. I enjoy making music and have released several tracks. My hobbies also include staying active and maintaining a healthy lifestyle.</p>
         </section>
         <section id="sales-startups">
@@ -94,6 +108,7 @@
         </section>
         <section id="music">
             <h2>Music</h2>
+            <img src="music.jpg" alt="Music" class="music-image">
             <p>Music has always been a significant part of my life. I enjoy creating and releasing music, exploring different genres, and collaborating with other artists. Here are some of my latest tracks:</p>
             <ul>
                 <li>Track 1</li>
@@ -103,11 +118,13 @@
         </section>
         <section id="contact">
             <h2>Contact</h2>
-            <p>If you would like to get in touch, please feel free to reach out to me through the following channels:</p>
-            <ul>
-                <li>Email: kyle@example.com</li>
-                <li>LinkedIn: <a href="https://www.linkedin.com/in/kyle">linkedin.com/in/kyle</a></li>
-            </ul>
+            <div class="contact-info">
+                <p>If you would like to get in touch, please feel free to reach out to me through the following channels:</p>
+                <ul>
+                    <li>Email: <a href="mailto:kyle@example.com">kyle@example.com</a></li>
+                    <li>LinkedIn: <a href="https://www.linkedin.com/in/kyle" target="_blank">linkedin.com/in/kyle</a></li>
+                </ul>
+            </div>
         </section>
     </div>
     <footer>
