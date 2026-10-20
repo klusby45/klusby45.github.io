@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Market Maker</title>
+<meta name="description" content="Make markets on hidden dice and cards against traders who might know more than you.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f5f2ee;
+    --surface: #ffffff;
+    --surface-2: #f8f4ef;
+    --text: #2b2724;
+    --muted: #7a716a;
+    --border: #e6ddd3;
+    --accent: #c0844f;
+    --accent-strong: #a26745;
+    --accent-soft: #f3e6d8;
+    --on-accent: #ffffff;
+    --buy: #1f8a5b;
+    --buy-soft: #e1f3ea;
+    --sell: #c2453d;
+    --sell-soft: #fbe6e4;
+    --card-red: #c2453d;
+    --shadow: 0 1px 2px rgba(60, 40, 20, .06), 0 4px 16px rgba(60, 40, 20, .06);
+    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #171513;
+      --surface: #211e1b;
+      --surface-2: #2a2622;
+      --text: #efe8e1;
+      --muted: #a39990;
+      --border: #3a342e;
+      --accent: #d9a172;
+      --accent-strong: #e8b68b;
+      --accent-soft: #3a2d22;
+      --on-accent: #1b1410;
+      --buy: #4cc38a;
+      --buy-soft: #183327;
+      --sell: #f0776e;
+      --sell-soft: #3b1f1d;
+      --card-red: #f0776e;
+      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #171513;
+    --surface: #211e1b;
+    --surface-2: #2a2622;
+    --text: #efe8e1;
+    --muted: #a39990;
+    --border: #3a342e;
+    --accent: #d9a172;
+    --accent-strong: #e8b68b;
+    --accent-soft: #3a2d22;
+    --on-accent: #1b1410;
+    --buy: #4cc38a;
+    --buy-soft: #183327;
+    --sell: #f0776e;
+    --sell-soft: #3b1f1d;
+    --card-red: #f0776e;
+    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Nunito', system-ui, sans-serif;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; padding: 16px 16px 64px; }
+  .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+  [hidden] { display: none !important; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+  .topbar a { color: var(--muted); text-decoration: none; font-size: 14px; }
+  .topbar a:hover { color: var(--accent-strong); }
+  .brand { font-weight: 800; font-size: 20px; letter-spacing: -.01em; }
+  .brand span { color: var(--accent); }
+
+  .panel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    box-shadow: var(--shadow);
+    margin-bottom: 16px;
+  }
+  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 8px; letter-spacing: -.02em; }
+  h2 { font-size: 18px; margin: 0 0 12px; }
+  p { margin: 0 0 12px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 14px; }
+
+  .rules { padding-left: 20px; margin: 0 0 16px; }
+  .rules li { margin-bottom: 6px; }
+
+  .settings { display: grid; gap: 14px; margin: 18px 0; }
+  .setting { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  .setting-label strong { display: block; }
+  .setting-label span { font-size: 13px; color: var(--muted); }
+  .seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
+  .seg button {
+    border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 600;
+    padding: 6px 14px; border-radius: 7px; cursor: pointer;
+  }
+  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
+  .switch { position: relative; width: 44px; height: 26px; flex: none; }
+  .switch input { opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; position: absolute; z-index: 1; }
+  .switch span { position: absolute; inset: 0; background: var(--border); border-radius: 999px; transition: background .15s; }
+  .switch span::after {
+    content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
+    background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  }
+  .switch input:checked + span { background: var(--accent); }
+  .switch input:checked + span::after { transform: translateX(18px); }
+  .switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    border: 1px solid var(--border); background: var(--surface); color: var(--text);
+    font: inherit; font-weight: 700; padding: 10px 16px; border-radius: 10px; cursor: pointer;
+  }
+  .btn:hover { border-color: var(--accent); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .btn.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
+  .btn.big { padding: 13px 22px; font-size: 17px; }
+  .btn:focus-visible, .seg button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  .best { font-size: 14px; color: var(--muted); margin-top: 12px; }
+
+  /* Round header */
+  .round-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
+  .round-head h2 { margin: 0; }
+  .chip { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-strong); }
+  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
+
+  /* Items */
+  .items { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 20px 0 8px; min-height: 84px; }
+  .op { color: var(--muted); font-size: 20px; font-weight: 800; }
+  .tile {
+    width: 60px; height: 76px; border-radius: 10px; border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; position: relative;
+    background: var(--surface); box-shadow: var(--shadow);
+  }
+  .tile.die { width: 64px; height: 64px; border-radius: 12px; }
+  .tile.hidden {
+    background: repeating-linear-gradient(45deg, var(--accent-soft), var(--accent-soft) 6px, var(--surface-2) 6px, var(--surface-2) 12px);
+    color: var(--accent-strong); font-weight: 800; font-size: 24px;
+  }
+  .tile.fresh { animation: flip .45s ease-out; }
+  @keyframes flip { from { transform: rotateY(90deg); } to { transform: rotateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .tile.fresh { animation: none; } }
+  .pips { display: grid; grid-template-columns: repeat(3, 12px); grid-template-rows: repeat(3, 12px); gap: 4px; }
+  .pip { width: 12px; height: 12px; border-radius: 50%; }
+  .pip.on { background: var(--text); }
+  .card-face { text-align: center; line-height: 1.05; font-weight: 800; }
+  .card-face .rank { font-size: 24px; }
+  .card-face .suit { font-size: 22px; }
+  .card-face.red { color: var(--card-red); }
+  .items-caption { text-align: center; font-size: 13px; color: var(--muted); }
+
+  /* Stats strip */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0; }
+  .stat { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; }
+  .stat .k { font-size: 12px; color: var(--muted); font-weight: 600; }
+  .stat .v { font-size: 18px; font-weight: 600; }
+  .long { color: var(--buy); }
+  .short { color: var(--sell); }
+
+  /* Quote form */
+  .quote { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: end; }
+  .field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+  .field.bid label { color: var(--buy); }
+  .field.ask label { color: var(--sell); }
+  .field input {
+    width: 100%; font-family: var(--mono); font-size: 24px; font-weight: 600; text-align: center;
+    padding: 10px 8px; border-radius: 10px; border: 2px solid var(--border); background: var(--surface); color: var(--text);
+  }
+  .field.bid input:focus { border-color: var(--buy); }
+  .field.ask input:focus { border-color: var(--sell); }
+  .at { font-family: var(--mono); color: var(--muted); padding-bottom: 14px; font-size: 18px; }
+  .quote-tools { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+  .nudges { display: flex; gap: 6px; flex-wrap: wrap; }
+  .nudges .btn { padding: 6px 10px; font-size: 14px; }
+  .width-read { font-size: 14px; color: var(--muted); }
+  .width-read.bad { color: var(--sell); font-weight: 700; }
+  .error { color: var(--sell); font-size: 14px; font-weight: 700; min-height: 21px; margin-top: 8px; }
+  .submit-row { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
+  .submit-row .btn.primary { flex: 1; }
+  .fair-hint { font-size: 14px; color: var(--accent-strong); background: var(--accent-soft); border-radius: 8px; padding: 6px 10px; margin-top: 10px; }
+
+  .clock { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin-top: 12px; }
+  .clock div { height: 100%; background: var(--accent); width: 100%; transition: width .2s linear; }
+  .clock.urgent div { background: var(--sell); }
+
+  /* Tape */
+  .tape { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow-y: auto; }
+  .tape li { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; align-items: baseline; }
+  .tape li:last-child { border-bottom: 0; }
+  .tape .q { font-family: var(--mono); color: var(--muted); min-width: 30px; }
+  .tag { font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 6px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
+  .tag.buy { background: var(--buy-soft); color: var(--buy); }
+  .tag.sell { background: var(--sell-soft); color: var(--sell); }
+  .tag.pass { background: var(--surface-2); color: var(--muted); }
+  .tag.reveal { background: var(--accent-soft); color: var(--accent-strong); }
+  .tape-empty { color: var(--muted); font-size: 14px; }
+
+  /* Results */
+  .settle { text-align: center; padding: 8px 0 16px; }
+  .settle .label { font-size: 13px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  .settle .value { font-size: 44px; font-weight: 600; line-height: 1.1; }
+  .scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
+  .score { background: var(--surface-2); border-radius: 10px; padding: 12px; text-align: center; }
+  .score .k { font-size: 12px; color: var(--muted); font-weight: 700; }
+  .score .v { font-size: 22px; font-weight: 600; }
+  .score.hero { background: var(--accent-soft); }
+  .score.hero .k { color: var(--accent-strong); }
+  .pos { color: var(--buy); }
+  .neg { color: var(--sell); }
+  .table-wrap { overflow-x: auto; margin: 0 -4px 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th { text-align: right; font-size: 11px; color: var(--muted); font-weight: 700; padding: 6px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+  td { text-align: right; padding: 7px 6px; border-bottom: 1px solid var(--border); font-family: var(--mono); white-space: nowrap; }
+  th:first-child, td:first-child, .qtable th:nth-child(4), .qtable td:nth-child(4), .qtable th:nth-child(7), .qtable td:nth-child(7) { text-align: left; }
+  td.reveal-row { text-align: left; font-family: inherit; color: var(--accent-strong); font-weight: 700; background: var(--surface-2); }
+  .insights { margin: 0 0 16px; padding-left: 20px; }
+  .insights li { margin-bottom: 6px; }
+  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .grade { font-size: 15px; margin-bottom: 14px; }
+
+  details { margin-top: 4px; }
+  summary { cursor: pointer; font-weight: 700; color: var(--accent-strong); }
+
+  @media (max-width: 520px) {
+    h1 { font-size: 25px; }
+    .stats, .scores { grid-template-columns: repeat(3, 1fr); gap: 6px; }
+    .stat, .score { padding: 8px; }
+    .stat .v { font-size: 15px; }
+    .score .v { font-size: 17px; }
+    .tile { width: 50px; height: 66px; }
+    .tile.die { width: 52px; height: 52px; }
+    .pips { grid-template-columns: repeat(3, 9px); grid-template-rows: repeat(3, 9px); gap: 4px; }
+    .pip { width: 9px; height: 9px; }
+    .field input { font-size: 20px; }
+    .settle .value { font-size: 36px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">Market <span>Maker</span></div>
+    <a href="../../">← Back to Kyle's page</a>
+  </div>
+
+  <!-- Start screen -->
+  <section id="start" class="panel">
+    <h1>Make the market. Don't get picked off.</h1>
+    <p class="muted">You're a trader making markets on a hidden number. Some people trading with you know nothing. Some know more than you do. Your job is to price it right and figure out which is which.</p>
+    <ol class="rules">
+      <li>Each round has a hidden number, like the sum of 5 dice. Items get revealed one at a time.</li>
+      <li>You quote a <strong>bid</strong> (what you'd buy at) and an <strong>ask</strong> (what you'd sell at). Width can't exceed the max shown.</li>
+      <li>One trader shows up per quote. <strong>Noise traders</strong> trade randomly and like tight markets. <strong>Informed traders</strong> have peeked at one hidden item and only trade when your price is wrong.</li>
+      <li>You quote twice per reveal, so watch the flow. If someone lifts your offer, maybe they know something.</li>
+      <li>At the end, the contract settles at the true value. Your position plus cash is your P&amp;L.</li>
+    </ol>
+    <details>
+      <summary>How scoring works</summary>
+      <p class="small" style="margin-top:8px">You get two numbers. <strong>P&amp;L</strong> is what you actually made, luck included. <strong>Edge</strong> is the expected value of every quote you made, given everything you'd seen up to that point (reveals and trades). Edge is your skill score. Luck is the gap between them. A great player can lose money on a session and still post a big edge.</p>
+    </details>
+
+    <div class="settings">
+      <div class="setting">
+        <div class="setting-label"><strong>Difficulty</strong><span id="diff-desc"></span></div>
+        <div class="seg" role="group" aria-label="Difficulty">
+          <button type="button" data-diff="rookie">Rookie</button>
+          <button type="button" data-diff="pro">Pro</button>
+        </div>
+      </div>
+      <div class="setting">
+        <div class="setting-label"><strong>Shot clock</strong><span>15 seconds per quote. Miss it and pay a $50 fine.</span></div>
+        <label class="switch"><input type="checkbox" id="opt-clock" aria-label="Shot clock"><span></span></label>
+      </div>
+      <div class="setting">
+        <div class="setting-label"><strong>Practice mode</strong><span>Shows the fair value while you quote. Scores aren't saved.</span></div>
+        <label class="switch"><input type="checkbox" id="opt-practice" aria-label="Practice mode"><span></span></label>
+      </div>
+    </div>
+    <button class="btn primary big" id="start-btn" type="button">Start session · 5 rounds</button>
+    <div class="best" id="best-line"></div>
+  </section>
+
+  <!-- Game screen -->
+  <section id="game" hidden>
+    <div class="panel">
+      <div class="round-head">
+        <h2 id="round-title"></h2>
+        <div class="chips" id="round-chips"></div>
+      </div>
+      <p class="muted small" id="round-blurb"></p>
+      <div class="items" id="items" aria-live="polite"></div>
+      <div class="items-caption" id="items-caption"></div>
+
+      <div class="stats">
+        <div class="stat"><div class="k">Position</div><div class="v num" id="st-pos"></div></div>
+        <div class="stat"><div class="k">Quote</div><div class="v num" id="st-quote"></div></div>
+        <div class="stat"><div class="k">Max width</div><div class="v num" id="st-width"></div></div>
+      </div>
+
+      <form id="quote-form" autocomplete="off" novalidate>
+        <div id="quote-area">
+          <div class="quote">
+            <div class="field bid"><label for="bid">Bid · you buy</label><input id="bid" type="number" inputmode="decimal" step="0.5" placeholder="—"></div>
+            <div class="at">@</div>
+            <div class="field ask"><label for="ask">Ask · you sell</label><input id="ask" type="number" inputmode="decimal" step="0.5" placeholder="—"></div>
+          </div>
+          <div class="quote-tools">
+            <div class="nudges">
+              <button class="btn" type="button" data-nudge="shift" data-d="-1" aria-label="Shift market down 1">▼ 1</button>
+              <button class="btn" type="button" data-nudge="shift" data-d="1" aria-label="Shift market up 1">▲ 1</button>
+              <button class="btn" type="button" data-nudge="width" data-d="-1" aria-label="Tighten market">Tighter</button>
+              <button class="btn" type="button" data-nudge="width" data-d="1" aria-label="Widen market">Wider</button>
+            </div>
+            <div class="width-read num" id="width-read"></div>
+          </div>
+          <div class="fair-hint num" id="fair-hint" hidden></div>
+          <div class="error" id="quote-error" role="alert"></div>
+          <div class="submit-row">
+            <button class="btn primary big" type="submit" id="quote-btn">Quote</button>
+          </div>
+          <div class="clock" id="clock" hidden><div id="clock-bar"></div></div>
+        </div>
+      </form>
+    </div>
+
+    <div class="panel" id="result-panel" hidden></div>
+
+    <div class="panel">
+      <h2>Tape</h2>
+      <ul class="tape" id="tape" aria-live="polite"></ul>
+    </div>
+  </section>
+
+  <!-- Session summary -->
+  <section id="summary" class="panel" hidden></section>
+</div>
+
+<script src="engine.js"></script>
+<script>
+(function () {
+  'use strict';
+  const MM = window.MarketMaker;
+  const $ = (id) => document.getElementById(id);
+  const CLOCK_SECONDS = 15;
+
+  const store = {
+    get(key, fallback) {
+      try { const v = localStorage.getItem(key); return v == null ? fallback : JSON.parse(v); } catch (e) { return fallback; }
+    },
+    set(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) { /* storage unavailable */ }
+    },
+  };
+
+  const settings = Object.assign({ difficulty: 'rookie', clock: false, practice: false }, store.get('mm-settings', {}));
+  let session = null;
+  let tape = [];
+  let clock = null;
+
+  // ---------- formatting ----------
+  const fmt = (x) => (Math.round(x * 100) / 100).toString();
+  const fmt1 = (x) => x.toFixed(1);
+  function money(x, signed = true) {
+    const r = Math.round(x);
+    const s = '$' + Math.abs(r).toLocaleString();
+    if (!signed) return (r < 0 ? '−' : '') + s;
+    return (r > 0 ? '+' : r < 0 ? '−' : '') + s;
+  }
+  const cls = (x) => (Math.round(x) > 0 ? 'pos' : Math.round(x) < 0 ? 'neg' : '');
+  function positionText(p) {
+    if (p > 0) return `<span class="long">Long ${p}</span>`;
+    if (p < 0) return `<span class="short">Short ${-p}</span>`;
+    return 'Flat';
+  }
+  const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+
+  // ---------- item rendering ----------
+  const PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+  function itemHtml(item, shown, fresh) {
+    const isDie = item.kind === 'die';
+    if (!shown) return `<div class="tile ${isDie ? 'die' : ''} hidden" aria-label="hidden">?</div>`;
+    if (isDie) {
+      const on = PIPS[item.value];
+      const pips = Array.from({ length: 9 }, (_, i) => `<div class="pip ${on.includes(i) ? 'on' : ''}"></div>`).join('');
+      return `<div class="tile die ${fresh ? 'fresh' : ''}" aria-label="die showing ${item.value}"><div class="pips">${pips}</div></div>`;
+    }
+    const red = item.suit === '♥' || item.suit === '♦';
+    return `<div class="tile ${fresh ? 'fresh' : ''}" aria-label="${item.rank}${item.suit}"><div class="card-face ${red ? 'red' : ''}"><div class="rank">${item.rank}</div><div class="suit">${item.suit}</div></div></div>`;
+  }
+  function itemShort(item) {
+    return item.kind === 'die' ? `a ${item.value}` : `${item.rank}${item.suit} (${item.value})`;
+  }
+  const opFor = (round) => (round.scenario.id === 'diceProduct' ? '×' : '+');
+
+  // ---------- start screen ----------
+  const DIFF_DESC = {
+    rookie: 'About 1 in 4 traders is informed. A good place to learn.',
+    pro: 'Almost half the flow is informed. You have to read it to make money.',
+  };
+  function renderStart() {
+    document.querySelectorAll('[data-diff]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.diff === settings.difficulty)));
+    $('diff-desc').textContent = DIFF_DESC[settings.difficulty];
+    $('opt-clock').checked = settings.clock;
+    $('opt-practice').checked = settings.practice;
+    const best = store.get('mm-best-' + settings.difficulty, null);
+    $('best-line').innerHTML = best == null ? '' : `Best ${MM.DIFFICULTIES[settings.difficulty].name} edge: <strong class="num">${money(best)}</strong>`;
+  }
+  document.querySelectorAll('[data-diff]').forEach((b) => b.addEventListener('click', () => {
+    settings.difficulty = b.dataset.diff; store.set('mm-settings', settings); renderStart();
+  }));
+  $('opt-clock').addEventListener('change', (e) => { settings.clock = e.target.checked; store.set('mm-settings', settings); });
+  $('opt-practice').addEventListener('change', (e) => { settings.practice = e.target.checked; store.set('mm-settings', settings); });
+  $('start-btn').addEventListener('click', startSession);
+
+  function show(screen) {
+    for (const id of ['start', 'game', 'summary']) $(id).hidden = id !== screen;
+    window.scrollTo({ top: 0 });
+  }
+
+  // ---------- session flow ----------
+  function startSession() {
+    session = new MM.Session(settings.difficulty);
+    show('game');
+    startRound();
+  }
+
+  function startRound() {
+    tape = [];
+    $('result-panel').hidden = true;
+    $('quote-area').hidden = false;
+    $('bid').value = '';
+    $('ask').value = '';
+    renderRound(false);
+    $('bid').focus();
+    startClock();
+  }
+
+  function renderRound(freshReveal) {
+    const r = session.current;
+    const sc = r.scenario;
+    $('round-title').textContent = `Round ${session.roundNumber} of ${MM.ROUNDS_PER_SESSION} · ${sc.name}`;
+    const chips = [`$${sc.dollarsPerPoint} per point`, MM.DIFFICULTIES[settings.difficulty].name];
+    if (settings.clock) chips.push('Shot clock');
+    if (settings.practice) chips.push('Practice');
+    $('round-chips').innerHTML = chips.map((c) => `<span class="chip">${esc(c)}</span>`).join('');
+    $('round-blurb').textContent = sc.blurb;
+
+    const op = `<span class="op">${opFor(r)}</span>`;
+    $('items').innerHTML = r.items
+      .map((it, i) => itemHtml(it, i < r.revealed, freshReveal && i === r.revealed - 1))
+      .join(op);
+    $('items-caption').textContent = r.done
+      ? `Settles at ${r.value}`
+      : r.revealed === 0 ? 'Nothing revealed yet' : `${r.revealed} of ${r.itemCount} revealed`;
+
+    $('st-pos').innerHTML = positionText(r.position);
+    $('st-quote').textContent = r.done ? 'Done' : `${r.quoteIndex + 1} / ${r.turnCount}`;
+    $('st-width').textContent = r.done ? '—' : fmt(r.maxWidth());
+    if (settings.practice && !r.done) {
+      $('fair-hint').hidden = false;
+      $('fair-hint').textContent = `Fair value: ${fmt1(r.fairValue())}  (from reveals only: ${fmt1(r.publicStats().mean)})`;
+    } else {
+      $('fair-hint').hidden = true;
+    }
+    updateWidthRead();
+    renderTape();
+  }
+
+  function readQuote() {
+    const parse = (v) => (v.trim() === '' ? NaN : Number(v));
+    return { bid: parse($('bid').value), ask: parse($('ask').value) };
+  }
+
+  function updateWidthRead() {
+    const r = session && session.current;
+    if (!r || r.done) { $('width-read').textContent = ''; return; }
+    const { bid, ask } = readQuote();
+    const el = $('width-read');
+    if (!Number.isFinite(bid) || !Number.isFinite(ask)) { el.textContent = `max width ${fmt(r.maxWidth())}`; el.classList.remove('bad'); return; }
+    const w = ask - bid;
+    el.textContent = `width ${fmt(w)} / ${fmt(r.maxWidth())}`;
+    el.classList.toggle('bad', w <= 0 || w > r.maxWidth() + 1e-9);
+  }
+  $('bid').addEventListener('input', () => { $('quote-error').textContent = ''; updateWidthRead(); });
+  $('ask').addEventListener('input', () => { $('quote-error').textContent = ''; updateWidthRead(); });
+
+  // Nudge buttons: shift the whole market, or tighten/widen around the mid.
+  document.querySelectorAll('[data-nudge]').forEach((b) => b.addEventListener('click', () => {
+    const r = session.current;
+    let { bid, ask } = readQuote();
+    if (!Number.isFinite(bid) || !Number.isFinite(ask)) {
+      $('quote-error').textContent = 'Type a bid and ask first, then nudge.';
+      return;
+    }
+    const d = Number(b.dataset.d);
+    if (b.dataset.nudge === 'shift') { bid += d; ask += d; }
+    else {
+      const w = Math.min(r.maxWidth(), Math.max(0.5, ask - bid + d));
+      const mid = (bid + ask) / 2;
+      bid = MM.roundHalf(mid - w / 2);
+      ask = bid + w;
+    }
+    $('bid').value = fmt(bid);
+    $('ask').value = fmt(ask);
+    $('quote-error').textContent = '';
+    updateWidthRead();
+  }));
+
+  $('quote-form').addEventListener('submit', (e) => {
+    e.preventDefault();
+    submitQuote(false);
+  });
+
+  function submitQuote(fromClock) {
+    const r = session.current;
+    if (!r || r.done) return;
+    const { bid, ask } = readQuote();
+    const err = r.validate(bid, ask);
+    if (err && !fromClock) { $('quote-error').textContent = err; return; }
+    stopClock();
+    const qn = r.quoteIndex + 1;
+    if (err) {
+      r.timeout();
+      tape.push({ q: qn, tag: 'sell', label: 'Fine', text: `Shot clock ran out without a valid quote. ${money(-MM.TIMEOUT_FINE)} fine.` });
+    } else {
+      const t = r.quote(bid, ask);
+      tape.push({ q: qn, ...describeTrade(t, r) });
+    }
+    $('quote-error').textContent = '';
+    if (r.freshReveal && !r.done) {
+      const it = r.items[r.revealed - 1];
+      tape.push({ q: '', tag: 'reveal', text: `Item ${r.revealed} revealed: ${itemShort(it)}` });
+    }
+    if (r.done) {
+      renderRound(true);
+      finishRound();
+    } else {
+      renderRound(r.freshReveal);
+      $('bid').focus();
+      $('bid').select();
+      startClock();
+    }
+  }
+
+  function describeTrade(t, r) {
+    const mkt = `${fmt(t.bid)} @ ${fmt(t.ask)}`;
+    if (t.action === 'buy') return { tag: 'sell', label: 'You sold', text: `${mkt} · Trader lifted your offer. You sold 1 at ${fmt(t.price)}. ${posWord(r.position)}` };
+    if (t.action === 'sell') return { tag: 'buy', label: 'You bought', text: `${mkt} · Trader hit your bid. You bought 1 at ${fmt(t.price)}. ${posWord(r.position)}` };
+    return { tag: 'pass', label: 'Pass', text: `${mkt} · Trader passed.` };
+  }
+  const posWord = (p) => (p > 0 ? `Now long ${p}.` : p < 0 ? `Now short ${-p}.` : 'Now flat.');
+
+  function renderTape() {
+    if (!tape.length) {
+      $('tape').innerHTML = '<li class="tape-empty">No quotes yet. Make your first market.</li>';
+      return;
+    }
+    $('tape').innerHTML = tape.slice().reverse().map((e) => {
+      const label = e.tag === 'reveal' ? 'Reveal' : e.label || 'Pass';
+      return `<li><span class="q">${e.q ? '#' + e.q : ''}</span><span class="tag ${e.tag}">${label}</span><span>${esc(e.text)}</span></li>`;
+    }).join('');
+  }
+
+  // ---------- shot clock ----------
+  function startClock() {
+    stopClock();
+    if (!settings.clock) { $('clock').hidden = true; return; }
+    $('clock').hidden = false;
+    const started = performance.now();
+    const tick = () => {
+      const left = Math.max(0, CLOCK_SECONDS - (performance.now() - started) / 1000);
+      $('clock-bar').style.width = (left / CLOCK_SECONDS) * 100 + '%';
+      $('clock').classList.toggle('urgent', left < 5);
+      if (left <= 0) { clock = null; submitQuote(true); return; }
+      clock = setTimeout(tick, 100);
+    };
+    tick();
+  }
+  function stopClock() {
+    if (clock) clearTimeout(clock);
+    clock = null;
+  }
+
+  // ---------- round results ----------
+  function finishRound() {
+    const r = session.current;
+    $('quote-area').hidden = true;
+    const b = r.breakdown();
+    const luck = b.pnl - b.edge;
+
+    const rows = [];
+    let lastRevealed = 0;
+    r.turns.forEach((t, i) => {
+      if (t.revealed !== lastRevealed) {
+        lastRevealed = t.revealed;
+        rows.push(`<tr><td class="reveal-row" colspan="7">Revealed ${itemShort(r.items[t.revealed - 1])}</td></tr>`);
+      }
+      const trade = t.timedOut ? 'Timed out' : t.action === 'buy' ? `Sold ${fmt(t.price)}` : t.action === 'sell' ? `Bought ${fmt(t.price)}` : 'Pass';
+      const who = t.timedOut ? '—' : t.trader === 'informed' ? `Informed (saw ${fmt1(t.traderView)})` : 'Noise';
+      const mkt = t.timedOut ? '—' : `${fmt(t.bid)} @ ${fmt(t.ask)}`;
+      const pnl = r.tradePnl(t) - (t.timedOut ? MM.TIMEOUT_FINE : 0);
+      rows.push(`<tr><td>${i + 1}</td><td>${mkt}</td><td>${fmt1(t.fair)}</td><td>${trade}</td><td class="${cls(pnl)}">${pnl ? money(pnl) : '—'}</td><td class="${cls(t.edge)}">${money(t.edge)}</td><td>${esc(who)}</td></tr>`);
+    });
+
+    const last = session.roundNumber === MM.ROUNDS_PER_SESSION;
+    $('result-panel').innerHTML = `
+      <div class="settle">
+        <div class="label">Settled at</div>
+        <div class="value num">${r.value}</div>
+        <div class="muted small">You ended ${r.position > 0 ? 'long ' + r.position : r.position < 0 ? 'short ' + -r.position : 'flat'} · ${b.trades} trade${b.trades === 1 ? '' : 's'}</div>
+      </div>
+      <div class="scores">
+        <div class="score"><div class="k">P&amp;L</div><div class="v num ${cls(b.pnl)}">${money(b.pnl)}</div></div>
+        <div class="score hero"><div class="k">Edge (skill)</div><div class="v num ${cls(b.edge)}">${money(b.edge)}</div></div>
+        <div class="score"><div class="k">Luck</div><div class="v num ${cls(luck)}">${money(luck)}</div></div>
+      </div>
+      <ul class="insights">${roundInsights(r, b).map((s) => `<li>${s}</li>`).join('')}</ul>
+      <details>
+        <summary>Quote by quote</summary>
+        <div class="table-wrap" style="margin-top:10px">
+          <table class="qtable">
+            <thead><tr><th>#</th><th>Your market</th><th>Fair</th><th>Trade</th><th>P&amp;L</th><th>Edge</th><th>Trader</th></tr></thead>
+            <tbody>${rows.join('')}</tbody>
+          </table>
+        </div>
+        <p class="muted small">Fair is the expected value given everything you'd seen at that point, including what the trade flow implied.</p>
+      </details>
+      <div class="actions" style="margin-top:14px">
+        <button class="btn primary big" type="button" id="next-btn">${last ? 'See session results' : 'Next round →'}</button>
+      </div>`;
+    $('result-panel').hidden = false;
+    $('next-btn').addEventListener('click', () => {
+      if (last) return finishSession();
+      session.nextRound();
+      startRound();
+    });
+    $('next-btn').focus();
+    $('result-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function flowSplit(noise, informed, hadInformed) {
+    const n = noise ? `Noise traders ${noise < 0 ? 'cost you' : 'paid you'} ${money(Math.abs(noise), false)}.` : 'No noise traders traded with you.';
+    if (!hadInformed) return `${n} No informed trader ever found a mispriced side.`;
+    return `${n} Informed traders ${informed < 0 ? 'took' : 'gave you'} ${money(Math.abs(informed), false)}.`;
+  }
+
+  function roundInsights(r, b) {
+    const out = [];
+    const quoted = r.turns.filter((t) => !t.timedOut);
+    if (quoted.length) {
+      const worst = quoted.reduce((w, t) => {
+        const off = Math.abs((t.bid + t.ask) / 2 - t.fair) / t.sd;
+        return off > w.off ? { t, off } : w;
+      }, { t: null, off: -1 });
+      const t = worst.t;
+      const mid = (t.bid + t.ask) / 2;
+      if (worst.off > 0.35) {
+        out.push(`Your most mispriced quote was #${r.turns.indexOf(t) + 1}: mid ${fmt(mid)} against a fair value of ${fmt1(t.fair)}. That's ${worst.off.toFixed(1)} standard deviations ${mid > t.fair ? 'too high' : 'too low'}.`);
+      } else {
+        out.push('Every quote was centered within a third of a standard deviation of fair. That is tight pricing.');
+      }
+    }
+    if (b.trades) out.push(flowSplit(b.noise, b.informed, r.turns.some((t) => t.trader === 'informed' && t.action !== 'pass')));
+    // Did the flow carry information the player ignored?
+    let ignored = 0;
+    for (let i = 1; i < r.turns.length; i++) {
+      const prev = r.turns[i - 1], t = r.turns[i];
+      if (prev.timedOut || t.timedOut || prev.revealed !== t.revealed || prev.action === 'pass') continue;
+      const moved = (t.bid + t.ask) / 2 - (prev.bid + prev.ask) / 2;
+      const flowUp = prev.action === 'buy';
+      if ((flowUp && moved <= 0) || (!flowUp && moved >= 0)) ignored += 1;
+    }
+    if (ignored) out.push(`${ignored} time${ignored === 1 ? '' : 's'} you got traded with and didn't move your market toward the trade. Someone buying from you is a hint the value might be higher.`);
+    const tips = {
+      diceSum: 'Each hidden die is worth 3.5. Fair is just the revealed total plus 3.5 per hidden die, before you think about flow.',
+      cardSum: 'An unseen card averages 7, but the deck remembers. Every high card that shows up makes the rest of the deck slightly lower.',
+      diceProduct: 'The product\'s mean (3.5 × 3.5 × 3.5 ≈ 42.9) sits well above its median of about 36, because a few big rolls pull the average up. Informed traders know which side of that skew they\'re on.',
+    };
+    out.push(tips[r.scenario.id]);
+    return out;
+  }
+
+  // ---------- session summary ----------
+  function finishSession() {
+    const s = session.summary();
+    const luck = s.pnl - s.edge;
+    const key = 'mm-best-' + settings.difficulty;
+    const prevBest = store.get(key, null);
+    let bestLine = '';
+    if (!settings.practice) {
+      if (prevBest == null || s.edge > prevBest) {
+        store.set(key, s.edge);
+        bestLine = prevBest == null ? 'First recorded session.' : `New best edge, beating ${money(prevBest)}.`;
+      } else {
+        bestLine = `Best edge so far: ${money(prevBest)}.`;
+      }
+    } else {
+      bestLine = 'Practice mode, so this one isn\'t saved.';
+    }
+
+    // Benchmarks from simulation: perfect Bayesian quoting vs naive reveal-only quoting.
+    const bench = settings.difficulty === 'pro' ? { great: 70, ok: 15 } : { great: 180, ok: 140 };
+    const grade = s.edge >= bench.great ? 'Desk-ready. That edge is in line with near-perfect Bayesian quoting.'
+      : s.edge >= bench.ok ? 'Solid. You\'re pricing the reveals well. The rest of the edge is in reading the flow.'
+      : s.edge >= 0 ? 'Positive edge, which is a start. Tighten up your fair values first, then work on the flow.'
+      : 'Negative edge. You were mispricing enough that informed traders ate your spread. Go back to basics on fair value and try practice mode.';
+
+    const rounds = session.rounds.map((r, i) => {
+      const b = r.breakdown();
+      return `<tr><td>${i + 1}</td><td style="font-family:inherit;text-align:left">${esc(r.scenario.name)}</td><td>${r.value}</td><td class="${cls(b.pnl)}">${money(b.pnl)}</td><td class="${cls(b.edge)}">${money(b.edge)}</td></tr>`;
+    }).join('');
+
+    $('summary').innerHTML = `
+      <h1>Session complete</h1>
+      <p class="muted">${MM.DIFFICULTIES[settings.difficulty].name}${settings.practice ? ' · Practice' : ''} · ${s.trades} trades across ${MM.ROUNDS_PER_SESSION} rounds</p>
+      <div class="scores">
+        <div class="score"><div class="k">P&amp;L</div><div class="v num ${cls(s.pnl)}">${money(s.pnl)}</div></div>
+        <div class="score hero"><div class="k">Edge (skill)</div><div class="v num ${cls(s.edge)}">${money(s.edge)}</div></div>
+        <div class="score"><div class="k">Luck</div><div class="v num ${cls(luck)}">${money(luck)}</div></div>
+      </div>
+      <p class="grade">${grade}</p>
+      <ul class="insights">
+        <li>Average pricing error: <strong class="num">${s.avgPricingError.toFixed(2)}</strong> standard deviations from fair. Under 0.25 is sharp.</li>
+        <li>${flowSplit(s.noise, s.informed, session.rounds.some((r) => r.turns.some((t) => t.trader === 'informed' && t.action !== 'pass')))}</li>
+        ${s.fines ? `<li>Shot clock fines: <strong class="num">${money(-s.fines)}</strong>.</li>` : ''}
+        <li>${esc(bestLine)}</li>
+      </ul>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>#</th><th style="text-align:left">Market</th><th>Settled</th><th>P&amp;L</th><th>Edge</th></tr></thead>
+          <tbody>${rounds}</tbody>
+        </table>
+      </div>
+      <div class="actions">
+        <button class="btn primary big" type="button" id="again-btn">Play again</button>
+        <button class="btn big" type="button" id="settings-btn">Change settings</button>
+      </div>`;
+    show('summary');
+    $('again-btn').addEventListener('click', startSession);
+    $('settings-btn').addEventListener('click', () => { renderStart(); show('start'); });
+  }
+
+  renderStart();
+})();
+</script>
+</body>
+</html>
