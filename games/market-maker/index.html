@@ -7,351 +7,456 @@
 <meta name="description" content="Make markets on hidden dice and cards against traders who might know more than you.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root {
-    --bg: #f5f2ee;
+    --paper: #f6f3ec;
     --surface: #ffffff;
-    --surface-2: #f8f4ef;
-    --text: #2b2724;
-    --muted: #7a716a;
-    --border: #e6ddd3;
-    --accent: #c0844f;
-    --accent-strong: #a26745;
-    --accent-soft: #f3e6d8;
-    --on-accent: #ffffff;
-    --buy: #1f8a5b;
-    --buy-soft: #e1f3ea;
-    --sell: #c2453d;
-    --sell-soft: #fbe6e4;
-    --card-red: #c2453d;
-    --shadow: 0 1px 2px rgba(60, 40, 20, .06), 0 4px 16px rgba(60, 40, 20, .06);
-    --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    --ink: #151515;
+    --ink-2: #4a4a46;
+    --muted: #85827a;
+    --line: #151515;
+    --hair: #e4dfd4;
+    --sage: #557a64;
+    --sage-ink: #3d6150;
+    --sage-soft: #dde8df;
+    --salmon: #eba08f;
+    --salmon-ink: #b4513f;
+    --salmon-soft: #fae2dc;
+    --on-ink: #f6f3ec;
+    --on-sage: #ffffff;
+    --stroke: 2px;
+    --mono: 'DM Mono', ui-monospace, Menlo, monospace;
   }
   @media (prefers-color-scheme: dark) {
     :root:not([data-theme="light"]) {
-      --bg: #171513;
-      --surface: #211e1b;
-      --surface-2: #2a2622;
-      --text: #efe8e1;
-      --muted: #a39990;
-      --border: #3a342e;
-      --accent: #d9a172;
-      --accent-strong: #e8b68b;
-      --accent-soft: #3a2d22;
-      --on-accent: #1b1410;
-      --buy: #4cc38a;
-      --buy-soft: #183327;
-      --sell: #f0776e;
-      --sell-soft: #3b1f1d;
-      --card-red: #f0776e;
-      --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
+      --paper: #121211;
+      --surface: #1b1b19;
+      --ink: #f1ede4;
+      --ink-2: #c9c4b8;
+      --muted: #8e8a80;
+      --line: #f1ede4;
+      --hair: #2f2e2a;
+      --sage: #8fb59d;
+      --sage-ink: #a6c9b2;
+      --sage-soft: #1f2d24;
+      --salmon: #f0a99a;
+      --salmon-ink: #f4b4a6;
+      --salmon-soft: #3a2420;
+      --on-ink: #121211;
+      --on-sage: #0f1a13;
     }
   }
   :root[data-theme="dark"] {
-    --bg: #171513;
-    --surface: #211e1b;
-    --surface-2: #2a2622;
-    --text: #efe8e1;
-    --muted: #a39990;
-    --border: #3a342e;
-    --accent: #d9a172;
-    --accent-strong: #e8b68b;
-    --accent-soft: #3a2d22;
-    --on-accent: #1b1410;
-    --buy: #4cc38a;
-    --buy-soft: #183327;
-    --sell: #f0776e;
-    --sell-soft: #3b1f1d;
-    --card-red: #f0776e;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 4px 16px rgba(0, 0, 0, .25);
+    --paper: #121211;
+    --surface: #1b1b19;
+    --ink: #f1ede4;
+    --ink-2: #c9c4b8;
+    --muted: #8e8a80;
+    --line: #f1ede4;
+    --hair: #2f2e2a;
+    --sage: #8fb59d;
+    --sage-ink: #a6c9b2;
+    --sage-soft: #1f2d24;
+    --salmon: #f0a99a;
+    --salmon-ink: #f4b4a6;
+    --salmon-soft: #3a2420;
+    --on-ink: #121211;
+    --on-sage: #0f1a13;
   }
 
   * { box-sizing: border-box; }
   body {
     margin: 0;
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Nunito', system-ui, sans-serif;
-    line-height: 1.5;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: 'Archivo', system-ui, sans-serif;
+    font-stretch: 100%;
+    line-height: 1.45;
     -webkit-font-smoothing: antialiased;
   }
-  .wrap { max-width: 760px; margin: 0 auto; padding: 16px 16px 64px; }
+  .app { max-width: 480px; margin: 0 auto; padding: 16px 16px 72px; }
   .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
   [hidden] { display: none !important; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--sage); outline-offset: 3px; }
 
-  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
-  .topbar a { color: var(--muted); text-decoration: none; font-size: 14px; }
-  .topbar a:hover { color: var(--accent-strong); }
-  .brand { font-weight: 800; font-size: 20px; letter-spacing: -.01em; }
-  .brand span { color: var(--accent); }
-
-  .panel {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    padding: 20px;
-    box-shadow: var(--shadow);
-    margin-bottom: 16px;
+  /* Expanded small caps labels, like "BROKEN SWORDS" */
+  .label {
+    font-stretch: 125%; font-weight: 800; font-size: 11px;
+    letter-spacing: .06em; text-transform: uppercase;
   }
-  h1 { font-size: 30px; line-height: 1.15; margin: 0 0 8px; letter-spacing: -.02em; }
-  h2 { font-size: 18px; margin: 0 0 12px; }
-  p { margin: 0 0 12px; }
+
+  /* ---------- top bar ---------- */
+  .topbar { display: grid; grid-template-columns: 48px 1fr 48px; align-items: center; margin-bottom: 22px; }
+  .sq-btn, .ink-dot {
+    width: 44px; height: 44px; display: grid; place-items: center;
+    border: var(--stroke) solid var(--line); background: var(--surface); text-decoration: none; color: var(--ink);
+  }
+  .sq-btn { border-radius: 12px; cursor: pointer; }
+  .sq-btn:hover { background: var(--sage-soft); }
+  .ink-dot { border-radius: 50%; background: var(--ink); justify-self: end; }
+  .ink-dot svg { fill: var(--on-ink); }
+  .topbar-mid { text-align: center; }
+  .topbar-mid .sub { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+
+  /* ---------- staggered display headings ---------- */
+  .display { margin: 0 0 18px; color: var(--sage-ink); font-weight: 500; text-transform: uppercase; letter-spacing: -.025em; line-height: .98; }
+  .display .l1 { display: block; font-size: clamp(34px, 10vw, 52px); }
+  .display .l2 { display: flex; align-items: flex-end; gap: 12px; font-size: clamp(34px, 10vw, 52px); }
+  .display .l2 .tuck { flex: 1; font-size: 10px; letter-spacing: .02em; color: var(--ink-2); line-height: 1.3; padding-bottom: 8px; font-weight: 600; text-transform: none; }
+  .display .l2 .big { text-align: right; }
+
+  /* ---------- outlined surfaces ---------- */
+  .card {
+    background: var(--surface); border: var(--stroke) solid var(--line); border-radius: 22px;
+    padding: 18px; margin-bottom: 14px;
+  }
+    .card-title { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
   .muted { color: var(--muted); }
   .small { font-size: 14px; }
+  p { margin: 0 0 10px; }
 
-  .rules { padding-left: 20px; margin: 0 0 16px; }
-  .rules li { margin-bottom: 6px; }
+  /* ---------- hero art ---------- */
+  .hero { display: block; width: 100%; height: auto; margin: -4px 0 6px; }
+  .hero .ink-s { stroke: var(--line); }
+  .hero .ink-f { fill: var(--ink); }
+  .hero .surf { fill: var(--surface); }
+  .hero .blob { fill: var(--sage-soft); }
+  .hero .sal { fill: var(--salmon); }
 
-  .settings { display: grid; gap: 14px; margin: 18px 0; }
-  .setting { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
-  .setting-label strong { display: block; }
-  .setting-label span { font-size: 13px; color: var(--muted); }
-  .seg { display: inline-flex; background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 3px; }
-  .seg button {
-    border: 0; background: transparent; color: var(--muted); font: inherit; font-weight: 600;
-    padding: 6px 14px; border-radius: 7px; cursor: pointer;
+  /* ---------- rules ---------- */
+  .steps { list-style: none; margin: 0; padding: 0; counter-reset: s; }
+  .steps li { counter-increment: s; display: grid; grid-template-columns: 30px 1fr; gap: 10px; padding: 9px 0; border-top: 1px solid var(--hair); font-size: 15px; }
+  .steps li:first-child { border-top: 0; padding-top: 0; }
+  .steps li::before {
+    content: counter(s); width: 26px; height: 26px; border-radius: 50%; border: var(--stroke) solid var(--line);
+    display: grid; place-items: center; font-family: var(--mono); font-size: 12px; font-weight: 500;
   }
-  .seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: 0 1px 3px rgba(0,0,0,.12); }
-  .switch { position: relative; width: 44px; height: 26px; flex: none; }
-  .switch input { opacity: 0; width: 100%; height: 100%; margin: 0; cursor: pointer; position: absolute; z-index: 1; }
-  .switch span { position: absolute; inset: 0; background: var(--border); border-radius: 999px; transition: background .15s; }
-  .switch span::after {
-    content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 50%;
-    background: #fff; transition: transform .15s; box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  .steps b { font-weight: 700; }
+  details summary { cursor: pointer; list-style: none; display: flex; align-items: center; gap: 8px; padding-top: 12px; border-top: 1px solid var(--hair); }
+  details summary::-webkit-details-marker { display: none; }
+  details summary::after { content: '↓'; font-family: var(--mono); }
+  details[open] summary::after { content: '↑'; }
+
+  /* ---------- pills ---------- */
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 18px;
+    border: var(--stroke) solid var(--line); border-radius: 999px; background: var(--surface);
+    font-weight: 600; font-size: 15px; cursor: pointer; user-select: none;
   }
-  .switch input:checked + span { background: var(--accent); }
-  .switch input:checked + span::after { transform: translateX(18px); }
-  .switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .pill:hover { background: var(--paper); }
+  .pill[aria-pressed="true"], .pill:has(input:checked) { background: var(--salmon); border-color: var(--salmon); color: #1b1410; }
+  .pill input { position: absolute; opacity: 0; pointer-events: none; }
+  .pill:has(input:focus-visible) { outline: 2px solid var(--sage); outline-offset: 3px; }
+  .pill .state { font-family: var(--mono); font-size: 12px; opacity: .75; }
+  .setting { margin-bottom: 14px; }
+  .setting .label { display: block; margin-bottom: 8px; }
+  .hint { font-size: 13px; color: var(--ink-2); margin-top: 8px; }
 
-  .btn {
-    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
-    border: 1px solid var(--border); background: var(--surface); color: var(--text);
-    font: inherit; font-weight: 700; padding: 10px 16px; border-radius: 10px; cursor: pointer;
+  /* ---------- black CTA pill ---------- */
+  .cta {
+    width: 100%; height: 60px; border-radius: 999px; border: var(--stroke) solid var(--ink);
+    background: var(--ink); color: var(--on-ink); cursor: pointer;
+    display: flex; align-items: center; justify-content: space-between; padding: 0 22px;
+    font-stretch: 125%; font-weight: 800; font-size: 14px; letter-spacing: .08em; text-transform: uppercase;
   }
-  .btn:hover { border-color: var(--accent); }
-  .btn.primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
-  .btn.primary:hover { background: var(--accent-strong); border-color: var(--accent-strong); }
-  .btn.big { padding: 13px 22px; font-size: 17px; }
-  .btn:focus-visible, .seg button:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .cta svg { fill: var(--on-ink); }
+  .cta:hover { background: var(--sage-ink); border-color: var(--sage-ink); }
+  .cta.ghost { background: var(--surface); color: var(--ink); justify-content: center; }
+  .cta.ghost:hover { background: var(--sage-soft); }
+  .best { text-align: center; margin-top: 12px; font-family: var(--mono); font-size: 13px; color: var(--ink-2); }
 
-  .best { font-size: 14px; color: var(--muted); margin-top: 12px; }
+  /* ---------- XP-style progress bar ---------- */
+  .xp { margin: 4px 0 18px; }
+  .xp-track { height: 16px; border: var(--stroke) solid var(--line); border-radius: 999px; padding: 2px; background: var(--surface); }
+  .xp-fill { height: 100%; border-radius: 999px; background: var(--ink); transition: width .35s ease; min-width: 8px; }
+  .xp-labels { display: flex; justify-content: space-between; font-family: var(--mono); font-size: 12px; margin-top: 6px; color: var(--ink-2); }
 
-  /* Round header */
-  .round-head { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; flex-wrap: wrap; margin-bottom: 4px; }
-  .round-head h2 { margin: 0; }
-  .chip { display: inline-block; font-size: 12px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: var(--accent-soft); color: var(--accent-strong); }
-  .chips { display: flex; gap: 6px; flex-wrap: wrap; }
-
-  /* Items */
-  .items { display: flex; align-items: center; justify-content: center; gap: 8px; flex-wrap: wrap; margin: 20px 0 8px; min-height: 84px; }
-  .op { color: var(--muted); font-size: 20px; font-weight: 800; }
-  .tile {
-    width: 60px; height: 76px; border-radius: 10px; border: 1px solid var(--border);
-    display: flex; align-items: center; justify-content: center; position: relative;
-    background: var(--surface); box-shadow: var(--shadow);
+  /* ---------- items (dice / cards) ---------- */
+  .stage { position: relative; padding: 10px 0 2px; }
+  .items { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; min-height: 84px; }
+  .op { font-family: var(--mono); font-size: 18px; color: var(--muted); }
+  .tile { width: 58px; height: 58px; display: grid; place-items: center; flex: none; }
+  .tile svg { width: 100%; height: 100%; display: block; }
+  .die-body { fill: var(--surface); stroke: var(--line); stroke-width: 5; }
+  .pip { fill: var(--ink); }
+  .tile.hidden { border-radius: 14px; background: var(--ink); }
+  .tile.hidden svg { width: 26px; height: 26px; fill: var(--on-ink); }
+  .tile.cardt { width: 52px; height: 74px; }
+  .tile.cardt.hidden { border-radius: 10px; }
+  .cardface {
+    width: 100%; height: 100%; border: var(--stroke) solid var(--line); border-radius: 10px; background: var(--surface);
+    position: relative; display: grid; place-items: center;
   }
-  .tile.die { width: 64px; height: 64px; border-radius: 12px; }
-  .tile.hidden {
-    background: repeating-linear-gradient(45deg, var(--accent-soft), var(--accent-soft) 6px, var(--surface-2) 6px, var(--surface-2) 12px);
-    color: var(--accent-strong); font-weight: 800; font-size: 24px;
+  .cardface .r { position: absolute; top: 4px; left: 6px; font-weight: 800; font-size: 14px; line-height: 1; }
+  .cardface .s { font-size: 26px; line-height: 1; }
+  .cardface.red { color: var(--salmon-ink); }
+  .tile.fresh { animation: pop .4s cubic-bezier(.2, 1.4, .4, 1); }
+  @keyframes pop { from { transform: scale(.6) rotate(-8deg); opacity: 0; } to { transform: none; opacity: 1; } }
+  @media (prefers-reduced-motion: reduce) { .tile.fresh { animation: none; } .xp-fill { transition: none; } }
+  .stage-caption { text-align: center; margin-top: 10px; font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
+  .spark { position: absolute; fill: var(--ink); pointer-events: none; }
+
+  /* ---------- stat cells ---------- */
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 0 0 14px; }
+  .stat { border: var(--stroke) solid var(--line); border-radius: 16px; padding: 10px 12px; background: var(--surface); }
+  .stat .label { font-size: 9px; color: var(--ink-2); }
+  .stat .v { font-family: var(--mono); font-size: 17px; font-weight: 500; margin-top: 2px; }
+  .long { color: var(--sage-ink); }
+  .short { color: var(--salmon-ink); }
+
+  /* ---------- quote ---------- */
+  .quote { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .side { border: var(--stroke) solid var(--line); border-radius: 18px; overflow: hidden; background: var(--surface); }
+  .side .head { padding: 7px 12px; display: flex; justify-content: space-between; align-items: center; }
+  .side.bid .head { background: var(--sage); color: var(--on-sage); }
+  .side.ask .head { background: var(--salmon); color: #1b1410; }
+  .side .head .label { font-size: 10px; }
+  .side .head small { font-size: 11px; font-weight: 600; }
+  .side input {
+    width: 100%; border: 0; border-top: var(--stroke) solid var(--line); background: transparent; color: var(--ink);
+    font-family: var(--mono); font-size: 30px; font-weight: 500; text-align: center; padding: 12px 6px; outline: none;
+    -moz-appearance: textfield;
   }
-  .tile.fresh { animation: flip .45s ease-out; }
-  @keyframes flip { from { transform: rotateY(90deg); } to { transform: rotateY(0); } }
-  @media (prefers-reduced-motion: reduce) { .tile.fresh { animation: none; } }
-  .pips { display: grid; grid-template-columns: repeat(3, 12px); grid-template-rows: repeat(3, 12px); gap: 4px; }
-  .pip { width: 12px; height: 12px; border-radius: 50%; }
-  .pip.on { background: var(--text); }
-  .card-face { text-align: center; line-height: 1.05; font-weight: 800; }
-  .card-face .rank { font-size: 24px; }
-  .card-face .suit { font-size: 22px; }
-  .card-face.red { color: var(--card-red); }
-  .items-caption { text-align: center; font-size: 13px; color: var(--muted); }
+  .side input::-webkit-outer-spin-button, .side input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .side:focus-within { box-shadow: 0 0 0 3px var(--sage-soft); }
+  .side.ask:focus-within { box-shadow: 0 0 0 3px var(--salmon-soft); }
+  .side input::placeholder { color: var(--hair); }
 
-  /* Stats strip */
-  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0; }
-  .stat { background: var(--surface-2); border-radius: 10px; padding: 10px 12px; }
-  .stat .k { font-size: 12px; color: var(--muted); font-weight: 600; }
-  .stat .v { font-size: 18px; font-weight: 600; }
-  .long { color: var(--buy); }
-  .short { color: var(--sell); }
-
-  /* Quote form */
-  .quote { display: grid; grid-template-columns: 1fr auto 1fr; gap: 10px; align-items: end; }
-  .field label { display: block; font-size: 13px; font-weight: 700; margin-bottom: 4px; }
-  .field.bid label { color: var(--buy); }
-  .field.ask label { color: var(--sell); }
-  .field input {
-    width: 100%; font-family: var(--mono); font-size: 24px; font-weight: 600; text-align: center;
-    padding: 10px 8px; border-radius: 10px; border: 2px solid var(--border); background: var(--surface); color: var(--text);
+  .nudges { display: flex; justify-content: space-between; margin: 14px 0 4px; }
+  .circle {
+    width: 58px; height: 58px; border-radius: 50%; border: var(--stroke) solid var(--line); background: var(--surface);
+    display: grid; place-items: center; cursor: pointer; font-family: var(--mono); font-size: 18px; font-weight: 500;
   }
-  .field.bid input:focus { border-color: var(--buy); }
-  .field.ask input:focus { border-color: var(--sell); }
-  .at { font-family: var(--mono); color: var(--muted); padding-bottom: 14px; font-size: 18px; }
-  .quote-tools { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
-  .nudges { display: flex; gap: 6px; flex-wrap: wrap; }
-  .nudges .btn { padding: 6px 10px; font-size: 14px; }
-  .width-read { font-size: 14px; color: var(--muted); }
-  .width-read.bad { color: var(--sell); font-weight: 700; }
-  .error { color: var(--sell); font-size: 14px; font-weight: 700; min-height: 21px; margin-top: 8px; }
-  .submit-row { display: flex; gap: 10px; align-items: center; margin-top: 4px; }
-  .submit-row .btn.primary { flex: 1; }
-  .fair-hint { font-size: 14px; color: var(--accent-strong); background: var(--accent-soft); border-radius: 8px; padding: 6px 10px; margin-top: 10px; }
+  .circle:hover { background: var(--sage-soft); }
+  .circle:active { background: var(--salmon); }
+  .nudge-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--muted); text-align: center; }
+  .nudge-labels span { width: 58px; }
+  .width-read { text-align: center; font-family: var(--mono); font-size: 13px; color: var(--ink-2); margin: 12px 0 2px; }
+  .width-read.bad { color: var(--salmon-ink); font-weight: 500; }
+  .error { color: var(--salmon-ink); font-size: 14px; font-weight: 600; min-height: 20px; text-align: center; margin: 2px 0 8px; }
+  .fair-hint { font-family: var(--mono); font-size: 13px; background: var(--sage-soft); color: var(--sage-ink); border-radius: 12px; padding: 8px 12px; margin-top: 12px; text-align: center; }
+  .clock { margin-top: 14px; }
+  .clock .xp-track { height: 12px; }
+  .clock.urgent .xp-fill { background: var(--salmon-ink); }
 
-  .clock { height: 6px; border-radius: 999px; background: var(--surface-2); overflow: hidden; margin-top: 12px; }
-  .clock div { height: 100%; background: var(--accent); width: 100%; transition: width .2s linear; }
-  .clock.urgent div { background: var(--sell); }
+  /* ---------- tape ---------- */
+  .tape { list-style: none; margin: 0; padding: 0; max-height: 320px; overflow-y: auto; }
+  .tape li { display: grid; grid-template-columns: 30px auto 1fr; gap: 10px; padding: 10px 0; border-top: 1px solid var(--hair); font-size: 14px; align-items: baseline; }
+  .tape li:first-child { border-top: 0; }
+  .tape .q { font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .tag { font-stretch: 125%; font-size: 9px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; padding: 4px 8px; border-radius: 999px; white-space: nowrap; border: 1.5px solid transparent; }
+  .tag.buy { background: var(--sage); color: var(--on-sage); }
+  .tag.sell { background: var(--salmon); color: #1b1410; }
+  .tag.pass { border-color: var(--line); }
+  .tag.reveal { background: var(--ink); color: var(--on-ink); }
+  .tape-empty { color: var(--muted); font-size: 14px; display: block !important; }
 
-  /* Tape */
-  .tape { list-style: none; margin: 0; padding: 0; max-height: 300px; overflow-y: auto; }
-  .tape li { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 14px; align-items: baseline; }
-  .tape li:last-child { border-bottom: 0; }
-  .tape .q { font-family: var(--mono); color: var(--muted); min-width: 30px; }
-  .tag { font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 6px; text-transform: uppercase; letter-spacing: .03em; white-space: nowrap; }
-  .tag.buy { background: var(--buy-soft); color: var(--buy); }
-  .tag.sell { background: var(--sell-soft); color: var(--sell); }
-  .tag.pass { background: var(--surface-2); color: var(--muted); }
-  .tag.reveal { background: var(--accent-soft); color: var(--accent-strong); }
-  .tape-empty { color: var(--muted); font-size: 14px; }
-
-  /* Results */
-  .settle { text-align: center; padding: 8px 0 16px; }
-  .settle .label { font-size: 13px; color: var(--muted); font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
-  .settle .value { font-size: 44px; font-weight: 600; line-height: 1.1; }
+  /* ---------- results ---------- */
+  .settle { text-align: center; padding: 6px 0 14px; position: relative; }
+  .settle .value { font-size: 76px; font-weight: 600; line-height: 1; letter-spacing: -.04em; margin: 6px 0; }
+  .settle .sub { font-family: var(--mono); font-size: 12px; color: var(--ink-2); }
   .scores { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 16px; }
-  .score { background: var(--surface-2); border-radius: 10px; padding: 12px; text-align: center; }
-  .score .k { font-size: 12px; color: var(--muted); font-weight: 700; }
-  .score .v { font-size: 22px; font-weight: 600; }
-  .score.hero { background: var(--accent-soft); }
-  .score.hero .k { color: var(--accent-strong); }
-  .pos { color: var(--buy); }
-  .neg { color: var(--sell); }
-  .table-wrap { overflow-x: auto; margin: 0 -4px 12px; }
-  table { width: 100%; border-collapse: collapse; font-size: 13px; }
-  th { text-align: right; font-size: 11px; color: var(--muted); font-weight: 700; padding: 6px 6px; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  td { text-align: right; padding: 7px 6px; border-bottom: 1px solid var(--border); font-family: var(--mono); white-space: nowrap; }
-  th:first-child, td:first-child, .qtable th:nth-child(4), .qtable td:nth-child(4), .qtable th:nth-child(7), .qtable td:nth-child(7) { text-align: left; }
-  td.reveal-row { text-align: left; font-family: inherit; color: var(--accent-strong); font-weight: 700; background: var(--surface-2); }
-  .insights { margin: 0 0 16px; padding-left: 20px; }
-  .insights li { margin-bottom: 6px; }
-  .actions { display: flex; gap: 10px; flex-wrap: wrap; }
-  .grade { font-size: 15px; margin-bottom: 14px; }
+  .score { border: var(--stroke) solid var(--line); border-radius: 16px; padding: 12px 8px; text-align: center; background: var(--surface); }
+  .score .label { font-size: 9px; color: var(--ink-2); }
+  .score .v { font-family: var(--mono); font-size: 20px; font-weight: 500; margin-top: 4px; }
+  .score.hero { background: var(--sage); border-color: var(--sage); color: var(--on-sage); }
+  .score.hero .label { color: var(--on-sage); opacity: .85; }
+  .score.hero .v { color: var(--on-sage); }
+  .pos { color: var(--sage-ink); }
+  .neg { color: var(--salmon-ink); }
+  .insights { list-style: none; margin: 0 0 14px; padding: 0; }
+  .insights li { display: grid; grid-template-columns: 18px 1fr; gap: 8px; padding: 6px 0; font-size: 15px; }
+  .insights li::before { content: '✦'; font-size: 12px; line-height: 1.8; }
+  .table-wrap { overflow-x: auto; margin: 10px 0 12px; }
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { text-align: right; padding: 6px 6px; border-bottom: var(--stroke) solid var(--line); white-space: nowrap; }
+  th.label { font-size: 9px; }
+  td { text-align: right; padding: 8px 6px; border-bottom: 1px solid var(--hair); font-family: var(--mono); white-space: nowrap; }
+  th:first-child, td:first-child { text-align: left; }
+  .qtable th:nth-child(7), .qtable td:nth-child(7), td.txt, th.txt { text-align: left; }
+  td.txt { font-family: inherit; font-size: 13px; }
+  td.reveal-row { text-align: left; font-family: inherit; font-weight: 700; font-size: 12px; background: var(--paper); }
+  .grade { font-size: 17px; font-weight: 500; line-height: 1.35; margin-bottom: 12px; }
+  .stack { display: grid; gap: 10px; }
 
-  details { margin-top: 4px; }
-  summary { cursor: pointer; font-weight: 700; color: var(--accent-strong); }
-
-  @media (max-width: 520px) {
-    h1 { font-size: 25px; }
-    .stats, .scores { grid-template-columns: repeat(3, 1fr); gap: 6px; }
-    .stat, .score { padding: 8px; }
+  @media (max-width: 440px) {
+    th, td { padding-left: 3px; padding-right: 3px; }
+    table { font-size: 11px; }
+  }
+  @media (max-width: 380px) {
+    .tile { width: 50px; height: 50px; }
+    .tile.cardt { width: 46px; height: 66px; }
+    .circle { width: 52px; height: 52px; }
+    .nudge-labels span { width: 52px; }
+    .side input { font-size: 26px; }
     .stat .v { font-size: 15px; }
     .score .v { font-size: 17px; }
-    .tile { width: 50px; height: 66px; }
-    .tile.die { width: 52px; height: 52px; }
-    .pips { grid-template-columns: repeat(3, 9px); grid-template-rows: repeat(3, 9px); gap: 4px; }
-    .pip { width: 9px; height: 9px; }
-    .field input { font-size: 20px; }
-    .settle .value { font-size: 36px; }
   }
 </style>
 </head>
 <body>
-<div class="wrap">
-  <div class="topbar">
-    <div class="brand">Market <span>Maker</span></div>
-    <a href="../../">← Back to Kyle's page</a>
-  </div>
+<div class="app">
 
-  <!-- Start screen -->
-  <section id="start" class="panel">
-    <h1>Make the market. Don't get picked off.</h1>
-    <p class="muted">You're a trader making markets on a hidden number. Some people trading with you know nothing. Some know more than you do. Your job is to price it right and figure out which is which.</p>
-    <ol class="rules">
-      <li>Each round has a hidden number, like the sum of 5 dice. Items get revealed one at a time.</li>
-      <li>You quote a <strong>bid</strong> (what you'd buy at) and an <strong>ask</strong> (what you'd sell at). Width can't exceed the max shown.</li>
-      <li>One trader shows up per quote. <strong>Noise traders</strong> trade randomly and like tight markets. <strong>Informed traders</strong> have peeked at one hidden item and only trade when your price is wrong.</li>
-      <li>You quote twice per reveal, so watch the flow. If someone lifts your offer, maybe they know something.</li>
-      <li>At the end, the contract settles at the true value. Your position plus cash is your P&amp;L.</li>
-    </ol>
-    <details>
-      <summary>How scoring works</summary>
-      <p class="small" style="margin-top:8px">You get two numbers. <strong>P&amp;L</strong> is what you actually made, luck included. <strong>Edge</strong> is the expected value of every quote you made, given everything you'd seen up to that point (reveals and trades). Edge is your skill score. Luck is the gap between them. A great player can lose money on a session and still post a big edge.</p>
-    </details>
+  <!-- ================= START ================= -->
+  <section id="start">
+    <div class="topbar">
+      <a class="sq-btn" href="../../" aria-label="Back to Kyle's page">
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="1" y="1" width="6.5" height="6.5" rx="2" fill="currentColor"/><rect x="10.5" y="1" width="6.5" height="6.5" rx="2" fill="currentColor"/><rect x="1" y="10.5" width="6.5" height="6.5" rx="2" fill="currentColor"/><rect x="10.5" y="10.5" width="6.5" height="6.5" rx="2" fill="currentColor"/></svg>
+      </a>
+      <div class="topbar-mid"><div class="label">Market Maker</div><div class="sub">trading desk ↑</div></div>
+      <div class="ink-dot" aria-hidden="true"><svg width="18" height="18" viewBox="-1 -1 2 2"><path d="M0,-1C.1,-.25 .25,-.1 1,0C.25,.1 .1,.25 0,1C-.1,.25 -.25,.1 -1,0C-.25,-.1 -.1,-.25 0,-1Z"/></svg></div>
+    </div>
 
-    <div class="settings">
+    <h1 class="display">
+      <span class="l1">Make the</span>
+      <span class="l2"><span class="tuck">Mental math<br>trading desk</span><span class="big">market.</span></span>
+    </h1>
+
+    <svg class="hero" viewBox="0 0 340 190" role="img" aria-label="Line drawing of two dice and a playing card">
+      <circle class="blob" cx="118" cy="104" r="78"/>
+      <circle class="blob" cx="262" cy="64" r="40"/>
+      <!-- card -->
+      <g transform="translate(176 26) rotate(12)">
+        <rect class="surf ink-s" x="0" y="0" width="92" height="128" rx="12" stroke-width="3"/>
+        <text x="10" y="26" font-family="Archivo, sans-serif" font-weight="800" font-size="20" class="ink-f">K</text>
+        <path class="sal ink-s" stroke-width="3" d="M46 52c-9-12-28-6-24 9 3 11 16 19 24 28 8-9 21-17 24-28 4-15-15-21-24-9z"/>
+      </g>
+      <!-- big die -->
+      <g transform="translate(58 58) rotate(-10)">
+        <rect class="surf ink-s" x="0" y="0" width="96" height="96" rx="22" stroke-width="3"/>
+        <circle class="ink-f" cx="26" cy="26" r="8"/><circle class="ink-f" cx="70" cy="26" r="8"/>
+        <circle class="ink-f" cx="48" cy="48" r="8"/>
+        <circle class="ink-f" cx="26" cy="70" r="8"/><circle class="ink-f" cx="70" cy="70" r="8"/>
+      </g>
+      <!-- small die -->
+      <g transform="translate(140 120) rotate(14)">
+        <rect class="surf ink-s" x="0" y="0" width="56" height="56" rx="14" stroke-width="3"/>
+        <circle class="ink-f" cx="16" cy="16" r="5"/><circle class="ink-f" cx="40" cy="40" r="5"/>
+      </g>
+      <!-- sparkles -->
+      <path class="ink-f" transform="translate(40 40) scale(16)" d="M0,-1C.1,-.25 .25,-.1 1,0C.25,.1 .1,.25 0,1C-.1,.25 -.25,.1 -1,0C-.25,-.1 -.1,-.25 0,-1Z"/>
+      <path class="ink-f" transform="translate(64 22) scale(8)" d="M0,-1C.1,-.25 .25,-.1 1,0C.25,.1 .1,.25 0,1C-.1,.25 -.25,.1 -1,0C-.25,-.1 -.1,-.25 0,-1Z"/>
+      <path class="ink-f" transform="translate(300 150) scale(14)" d="M0,-1C.1,-.25 .25,-.1 1,0C.25,.1 .1,.25 0,1C-.1,.25 -.25,.1 -1,0C-.25,-.1 -.1,-.25 0,-1Z"/>
+      <path class="ink-f" transform="translate(318 124) scale(7)" d="M0,-1C.1,-.25 .25,-.1 1,0C.25,.1 .1,.25 0,1C-.1,.25 -.25,.1 -1,0C-.25,-.1 -.1,-.25 0,-1Z"/>
+    </svg>
+
+    <div class="card">
+      <div class="card-title"><span class="label">How it works</span></div>
+      <ol class="steps">
+        <li><span>Each round hides a number, like the <b>sum of 5 dice</b>. Pieces get revealed one at a time.</span></li>
+        <li><span>You quote a <b>bid</b> (you buy) and an <b>ask</b> (you sell), no wider than the max.</span></li>
+        <li><span>One trader shows up per quote. <b>Noise traders</b> trade randomly and love tight markets. <b>Informed traders</b> peeked at a hidden piece and only trade when you're wrong.</span></li>
+        <li><span>You quote twice per reveal. If someone lifts your offer, maybe they know something.</span></li>
+        <li><span>The contract settles at the true value. Position plus cash is your P&amp;L.</span></li>
+      </ol>
+      <details>
+        <summary><span class="label">How scoring works</span></summary>
+        <p class="small" style="margin-top:10px"><b>P&amp;L</b> is what you actually made, luck included. <b>Edge</b> is the expected value of every quote you made, given everything you'd seen at that point (reveals and trades). Edge is your skill score. Luck is the gap. You can lose money and still post a big edge.</p>
+      </details>
+    </div>
+
+    <div class="card">
       <div class="setting">
-        <div class="setting-label"><strong>Difficulty</strong><span id="diff-desc"></span></div>
-        <div class="seg" role="group" aria-label="Difficulty">
-          <button type="button" data-diff="rookie">Rookie</button>
-          <button type="button" data-diff="pro">Pro</button>
+        <span class="label">Difficulty</span>
+        <div class="pill-row" role="group" aria-label="Difficulty">
+          <button type="button" class="pill" data-diff="rookie">Rookie</button>
+          <button type="button" class="pill" data-diff="pro">Pro</button>
         </div>
+        <div class="hint" id="diff-desc"></div>
       </div>
-      <div class="setting">
-        <div class="setting-label"><strong>Shot clock</strong><span>15 seconds per quote. Miss it and pay a $50 fine.</span></div>
-        <label class="switch"><input type="checkbox" id="opt-clock" aria-label="Shot clock"><span></span></label>
-      </div>
-      <div class="setting">
-        <div class="setting-label"><strong>Practice mode</strong><span>Shows the fair value while you quote. Scores aren't saved.</span></div>
-        <label class="switch"><input type="checkbox" id="opt-practice" aria-label="Practice mode"><span></span></label>
+      <div class="setting" style="margin-bottom:0">
+        <span class="label">Options</span>
+        <div class="pill-row">
+          <label class="pill"><input type="checkbox" id="opt-clock">Shot clock <span class="state" id="clock-state"></span></label>
+          <label class="pill"><input type="checkbox" id="opt-practice">Practice <span class="state" id="practice-state"></span></label>
+        </div>
+        <div class="hint">Shot clock gives you 15 seconds per quote, with a $50 fine if you miss. Practice shows fair value while you quote and doesn't save scores.</div>
       </div>
     </div>
-    <button class="btn primary big" id="start-btn" type="button">Start session · 5 rounds</button>
+
+    <button class="cta" id="start-btn" type="button">
+      <svg width="16" height="16" viewBox="-1 -1 2 2" aria-hidden="true"><path d="M0,-1C.1,-.25 .25,-.1 1,0C.25,.1 .1,.25 0,1C-.1,.25 -.25,.1 -1,0C-.25,-.1 -.1,-.25 0,-1Z"/></svg>
+      Start session · 5 rounds
+      <svg width="16" height="16" viewBox="-1 -1 2 2" aria-hidden="true"><path d="M0,-1C.1,-.25 .25,-.1 1,0C.25,.1 .1,.25 0,1C-.1,.25 -.25,.1 -1,0C-.25,-.1 -.1,-.25 0,-1Z"/></svg>
+    </button>
     <div class="best" id="best-line"></div>
   </section>
 
-  <!-- Game screen -->
+  <!-- ================= GAME ================= -->
   <section id="game" hidden>
-    <div class="panel">
-      <div class="round-head">
-        <h2 id="round-title"></h2>
-        <div class="chips" id="round-chips"></div>
-      </div>
-      <p class="muted small" id="round-blurb"></p>
-      <div class="items" id="items" aria-live="polite"></div>
-      <div class="items-caption" id="items-caption"></div>
-
-      <div class="stats">
-        <div class="stat"><div class="k">Position</div><div class="v num" id="st-pos"></div></div>
-        <div class="stat"><div class="k">Quote</div><div class="v num" id="st-quote"></div></div>
-        <div class="stat"><div class="k">Max width</div><div class="v num" id="st-width"></div></div>
-      </div>
-
-      <form id="quote-form" autocomplete="off" novalidate>
-        <div id="quote-area">
-          <div class="quote">
-            <div class="field bid"><label for="bid">Bid · you buy</label><input id="bid" type="number" inputmode="decimal" step="0.5" placeholder="—"></div>
-            <div class="at">@</div>
-            <div class="field ask"><label for="ask">Ask · you sell</label><input id="ask" type="number" inputmode="decimal" step="0.5" placeholder="—"></div>
-          </div>
-          <div class="quote-tools">
-            <div class="nudges">
-              <button class="btn" type="button" data-nudge="shift" data-d="-1" aria-label="Shift market down 1">▼ 1</button>
-              <button class="btn" type="button" data-nudge="shift" data-d="1" aria-label="Shift market up 1">▲ 1</button>
-              <button class="btn" type="button" data-nudge="width" data-d="-1" aria-label="Tighten market">Tighter</button>
-              <button class="btn" type="button" data-nudge="width" data-d="1" aria-label="Widen market">Wider</button>
-            </div>
-            <div class="width-read num" id="width-read"></div>
-          </div>
-          <div class="fair-hint num" id="fair-hint" hidden></div>
-          <div class="error" id="quote-error" role="alert"></div>
-          <div class="submit-row">
-            <button class="btn primary big" type="submit" id="quote-btn">Quote</button>
-          </div>
-          <div class="clock" id="clock" hidden><div id="clock-bar"></div></div>
-        </div>
-      </form>
+    <div class="topbar">
+      <button class="sq-btn" type="button" id="exit-btn" aria-label="Quit to menu">
+        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="1" y="1" width="6.5" height="6.5" rx="2" fill="currentColor"/><rect x="10.5" y="1" width="6.5" height="6.5" rx="2" fill="currentColor"/><rect x="1" y="10.5" width="6.5" height="6.5" rx="2" fill="currentColor"/><rect x="10.5" y="10.5" width="6.5" height="6.5" rx="2" fill="currentColor"/></svg>
+      </button>
+      <div class="topbar-mid"><div class="label" id="round-kicker"></div><div class="sub" id="round-meta"></div></div>
+      <div class="ink-dot" aria-hidden="true"><svg width="18" height="18" viewBox="-1 -1 2 2"><path d="M0,-1C.1,-.25 .25,-.1 1,0C.25,.1 .1,.25 0,1C-.1,.25 -.25,.1 -1,0C-.25,-.1 -.1,-.25 0,-1Z"/></svg></div>
     </div>
 
-    <div class="panel" id="result-panel" hidden></div>
+    <h2 class="display">
+      <span class="l1" id="title-1"></span>
+      <span class="l2"><span class="tuck" id="round-blurb"></span><span class="big" id="title-2"></span></span>
+    </h2>
 
-    <div class="panel">
-      <h2>Tape</h2>
+    <div class="xp" aria-hidden="true">
+      <div class="xp-track"><div class="xp-fill" id="xp-fill"></div></div>
+      <div class="xp-labels"><span id="xp-left"></span><span id="xp-right"></span></div>
+    </div>
+
+    <div class="stage">
+      <div class="items" id="items" aria-live="polite"></div>
+      <div class="stage-caption" id="items-caption"></div>
+    </div>
+
+    <div class="stats" style="margin-top:16px">
+      <div class="stat"><div class="label">Position</div><div class="v" id="st-pos"></div></div>
+      <div class="stat"><div class="label">Quote</div><div class="v" id="st-quote"></div></div>
+      <div class="stat"><div class="label">Max width</div><div class="v" id="st-width"></div></div>
+    </div>
+
+    <form id="quote-form" autocomplete="off" novalidate>
+      <div id="quote-area">
+        <div class="quote">
+          <label class="side bid">
+            <span class="head"><span class="label">Bid</span><small>you buy</small></span>
+            <input id="bid" type="number" inputmode="decimal" step="0.5" placeholder="00">
+          </label>
+          <label class="side ask">
+            <span class="head"><span class="label">Ask</span><small>you sell</small></span>
+            <input id="ask" type="number" inputmode="decimal" step="0.5" placeholder="00">
+          </label>
+        </div>
+        <div class="width-read" id="width-read"></div>
+        <div class="nudges">
+          <button class="circle" type="button" data-nudge="shift" data-d="-1" aria-label="Shift market down 1">↓</button>
+          <button class="circle" type="button" data-nudge="shift" data-d="1" aria-label="Shift market up 1">↑</button>
+          <button class="circle" type="button" data-nudge="width" data-d="-1" aria-label="Tighten market">→←</button>
+          <button class="circle" type="button" data-nudge="width" data-d="1" aria-label="Widen market">←→</button>
+        </div>
+        <div class="nudge-labels" aria-hidden="true"><span>down 1</span><span>up 1</span><span>tighter</span><span>wider</span></div>
+        <div class="fair-hint" id="fair-hint" hidden></div>
+        <div class="clock" id="clock" hidden><div class="xp-track"><div class="xp-fill" id="clock-bar"></div></div></div>
+        <div class="error" id="quote-error" role="alert"></div>
+        <button class="cta" type="submit" id="quote-btn">
+          <svg width="16" height="16" viewBox="-1 -1 2 2" aria-hidden="true"><path d="M0,-1C.1,-.25 .25,-.1 1,0C.25,.1 .1,.25 0,1C-.1,.25 -.25,.1 -1,0C-.25,-.1 -.1,-.25 0,-1Z"/></svg>
+          Quote market
+          <svg width="16" height="16" viewBox="-1 -1 2 2" aria-hidden="true"><path d="M0,-1C.1,-.25 .25,-.1 1,0C.25,.1 .1,.25 0,1C-.1,.25 -.25,.1 -1,0C-.25,-.1 -.1,-.25 0,-1Z"/></svg>
+        </button>
+      </div>
+    </form>
+
+    <div id="result-panel" hidden style="margin-top:16px"></div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title"><span class="label">Tape</span><span class="label muted" id="tape-count"></span></div>
       <ul class="tape" id="tape" aria-live="polite"></ul>
     </div>
   </section>
 
-  <!-- Session summary -->
-  <section id="summary" class="panel" hidden></section>
+  <!-- ================= SUMMARY ================= -->
+  <section id="summary" hidden></section>
 </div>
 
 <script src="engine.js"></script>
@@ -361,6 +466,8 @@
   const MM = window.MarketMaker;
   const $ = (id) => document.getElementById(id);
   const CLOCK_SECONDS = 15;
+  const SPARK = 'M0,-1C.1,-.25 .25,-.1 1,0C.25,.1 .1,.25 0,1C-.1,.25 -.25,.1 -1,0C-.25,-.1 -.1,-.25 0,-1Z';
+  const sparkSvg = (size) => `<svg width="${size}" height="${size}" viewBox="-1 -1 2 2" aria-hidden="true"><path d="${SPARK}"/></svg>`;
 
   const store = {
     get(key, fallback) {
@@ -394,17 +501,24 @@
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 
   // ---------- item rendering ----------
-  const PIPS = { 1: [4], 2: [0, 8], 3: [0, 4, 8], 4: [0, 2, 6, 8], 5: [0, 2, 4, 6, 8], 6: [0, 2, 3, 5, 6, 8] };
+  const PIPS = {
+    1: [[50, 50]],
+    2: [[28, 28], [72, 72]],
+    3: [[28, 28], [50, 50], [72, 72]],
+    4: [[28, 28], [72, 28], [28, 72], [72, 72]],
+    5: [[28, 28], [72, 28], [50, 50], [28, 72], [72, 72]],
+    6: [[28, 26], [72, 26], [28, 50], [72, 50], [28, 74], [72, 74]],
+  };
   function itemHtml(item, shown, fresh) {
     const isDie = item.kind === 'die';
-    if (!shown) return `<div class="tile ${isDie ? 'die' : ''} hidden" aria-label="hidden">?</div>`;
+    const base = `tile ${isDie ? '' : 'cardt'} ${fresh ? 'fresh' : ''}`;
+    if (!shown) return `<div class="${base} hidden" aria-label="hidden">${sparkSvg(26)}</div>`;
     if (isDie) {
-      const on = PIPS[item.value];
-      const pips = Array.from({ length: 9 }, (_, i) => `<div class="pip ${on.includes(i) ? 'on' : ''}"></div>`).join('');
-      return `<div class="tile die ${fresh ? 'fresh' : ''}" aria-label="die showing ${item.value}"><div class="pips">${pips}</div></div>`;
+      const pips = PIPS[item.value].map(([x, y]) => `<circle class="pip" cx="${x}" cy="${y}" r="9"/>`).join('');
+      return `<div class="${base}" aria-label="die showing ${item.value}"><svg viewBox="0 0 100 100"><rect class="die-body" x="3" y="3" width="94" height="94" rx="24"/>${pips}</svg></div>`;
     }
     const red = item.suit === '♥' || item.suit === '♦';
-    return `<div class="tile ${fresh ? 'fresh' : ''}" aria-label="${item.rank}${item.suit}"><div class="card-face ${red ? 'red' : ''}"><div class="rank">${item.rank}</div><div class="suit">${item.suit}</div></div></div>`;
+    return `<div class="${base}" aria-label="${item.rank}${item.suit}"><div class="cardface ${red ? 'red' : ''}"><span class="r">${item.rank}</span><span class="s">${item.suit}</span></div></div>`;
   }
   function itemShort(item) {
     return item.kind === 'die' ? `a ${item.value}` : `${item.rank}${item.suit} (${item.value})`;
@@ -421,15 +535,23 @@
     $('diff-desc').textContent = DIFF_DESC[settings.difficulty];
     $('opt-clock').checked = settings.clock;
     $('opt-practice').checked = settings.practice;
+    $('clock-state').textContent = settings.clock ? 'on' : 'off';
+    $('practice-state').textContent = settings.practice ? 'on' : 'off';
     const best = store.get('mm-best-' + settings.difficulty, null);
-    $('best-line').innerHTML = best == null ? '' : `Best ${MM.DIFFICULTIES[settings.difficulty].name} edge: <strong class="num">${money(best)}</strong>`;
+    $('best-line').textContent = best == null ? '' : `best ${MM.DIFFICULTIES[settings.difficulty].name.toLowerCase()} edge: ${money(best)}`;
   }
   document.querySelectorAll('[data-diff]').forEach((b) => b.addEventListener('click', () => {
     settings.difficulty = b.dataset.diff; store.set('mm-settings', settings); renderStart();
   }));
-  $('opt-clock').addEventListener('change', (e) => { settings.clock = e.target.checked; store.set('mm-settings', settings); });
-  $('opt-practice').addEventListener('change', (e) => { settings.practice = e.target.checked; store.set('mm-settings', settings); });
+  $('opt-clock').addEventListener('change', (e) => { settings.clock = e.target.checked; store.set('mm-settings', settings); renderStart(); });
+  $('opt-practice').addEventListener('change', (e) => { settings.practice = e.target.checked; store.set('mm-settings', settings); renderStart(); });
   $('start-btn').addEventListener('click', startSession);
+  $('exit-btn').addEventListener('click', () => {
+    if (!confirm('Quit this session? Progress will be lost.')) return;
+    stopClock();
+    renderStart();
+    show('start');
+  });
 
   function show(screen) {
     for (const id of ['start', 'game', 'summary']) $(id).hidden = id !== screen;
@@ -457,27 +579,35 @@
   function renderRound(freshReveal) {
     const r = session.current;
     const sc = r.scenario;
-    $('round-title').textContent = `Round ${session.roundNumber} of ${MM.ROUNDS_PER_SESSION} · ${sc.name}`;
-    const chips = [`$${sc.dollarsPerPoint} per point`, MM.DIFFICULTIES[settings.difficulty].name];
-    if (settings.clock) chips.push('Shot clock');
-    if (settings.practice) chips.push('Practice');
-    $('round-chips').innerHTML = chips.map((c) => `<span class="chip">${esc(c)}</span>`).join('');
+    const [t1, t2] = sc.name.split(/ of /i);
+    $('title-1').textContent = `${t1} of`;
+    $('title-2').textContent = t2;
+    $('round-kicker').textContent = `Round ${session.roundNumber} / ${MM.ROUNDS_PER_SESSION}`;
+    const meta = [`$${sc.dollarsPerPoint}/pt`, MM.DIFFICULTIES[settings.difficulty].name.toLowerCase()];
+    if (settings.clock) meta.push('clock');
+    if (settings.practice) meta.push('practice');
+    $('round-meta').textContent = meta.join(' · ');
     $('round-blurb').textContent = sc.blurb;
+
+    const done = r.done ? r.turnCount : r.quoteIndex;
+    $('xp-fill').style.width = `${(done / r.turnCount) * 100}%`;
+    $('xp-left').textContent = r.done ? 'settled' : `quote ${r.quoteIndex + 1}`;
+    $('xp-right').textContent = `${r.turnCount} quotes`;
 
     const op = `<span class="op">${opFor(r)}</span>`;
     $('items').innerHTML = r.items
       .map((it, i) => itemHtml(it, i < r.revealed, freshReveal && i === r.revealed - 1))
       .join(op);
     $('items-caption').textContent = r.done
-      ? `Settles at ${r.value}`
-      : r.revealed === 0 ? 'Nothing revealed yet' : `${r.revealed} of ${r.itemCount} revealed`;
+      ? `= ${r.value}`
+      : r.revealed === 0 ? 'nothing revealed yet' : `${r.revealed} of ${r.itemCount} revealed`;
 
     $('st-pos').innerHTML = positionText(r.position);
-    $('st-quote').textContent = r.done ? 'Done' : `${r.quoteIndex + 1} / ${r.turnCount}`;
+    $('st-quote').textContent = r.done ? 'Done' : `${r.quoteIndex + 1}/${r.turnCount}`;
     $('st-width').textContent = r.done ? '—' : fmt(r.maxWidth());
     if (settings.practice && !r.done) {
       $('fair-hint').hidden = false;
-      $('fair-hint').textContent = `Fair value: ${fmt1(r.fairValue())}  (from reveals only: ${fmt1(r.publicStats().mean)})`;
+      $('fair-hint').textContent = `fair ${fmt1(r.fairValue())} · reveals only ${fmt1(r.publicStats().mean)}`;
     } else {
       $('fair-hint').hidden = true;
     }
@@ -497,7 +627,7 @@
     const el = $('width-read');
     if (!Number.isFinite(bid) || !Number.isFinite(ask)) { el.textContent = `max width ${fmt(r.maxWidth())}`; el.classList.remove('bad'); return; }
     const w = ask - bid;
-    el.textContent = `width ${fmt(w)} / ${fmt(r.maxWidth())}`;
+    el.textContent = `width ${fmt(w)} of ${fmt(r.maxWidth())}`;
     el.classList.toggle('bad', w <= 0 || w > r.maxWidth() + 1e-9);
   }
   $('bid').addEventListener('input', () => { $('quote-error').textContent = ''; updateWidthRead(); });
@@ -548,7 +678,7 @@
     $('quote-error').textContent = '';
     if (r.freshReveal && !r.done) {
       const it = r.items[r.revealed - 1];
-      tape.push({ q: '', tag: 'reveal', text: `Item ${r.revealed} revealed: ${itemShort(it)}` });
+      tape.push({ q: '', tag: 'reveal', text: `Piece ${r.revealed} revealed: ${itemShort(it)}` });
     }
     if (r.done) {
       renderRound(true);
@@ -563,13 +693,15 @@
 
   function describeTrade(t, r) {
     const mkt = `${fmt(t.bid)} @ ${fmt(t.ask)}`;
-    if (t.action === 'buy') return { tag: 'sell', label: 'You sold', text: `${mkt} · Trader lifted your offer. You sold 1 at ${fmt(t.price)}. ${posWord(r.position)}` };
-    if (t.action === 'sell') return { tag: 'buy', label: 'You bought', text: `${mkt} · Trader hit your bid. You bought 1 at ${fmt(t.price)}. ${posWord(r.position)}` };
-    return { tag: 'pass', label: 'Pass', text: `${mkt} · Trader passed.` };
+    if (t.action === 'buy') return { tag: 'sell', label: 'You sold', text: `${mkt}. Trader lifted your offer, you sold 1 at ${fmt(t.price)}. ${posWord(r.position)}` };
+    if (t.action === 'sell') return { tag: 'buy', label: 'You bought', text: `${mkt}. Trader hit your bid, you bought 1 at ${fmt(t.price)}. ${posWord(r.position)}` };
+    return { tag: 'pass', label: 'Pass', text: `${mkt}. Trader passed.` };
   }
   const posWord = (p) => (p > 0 ? `Now long ${p}.` : p < 0 ? `Now short ${-p}.` : 'Now flat.');
 
   function renderTape() {
+    const trades = tape.filter((e) => e.tag === 'buy' || e.tag === 'sell').length;
+    $('tape-count').textContent = tape.length ? `${trades} trade${trades === 1 ? '' : 's'}` : '';
     if (!tape.length) {
       $('tape').innerHTML = '<li class="tape-empty">No quotes yet. Make your first market.</li>';
       return;
@@ -601,59 +733,66 @@
   }
 
   // ---------- round results ----------
+  function scoreCells(pnl, edge) {
+    const luck = pnl - edge;
+    return `
+      <div class="scores">
+        <div class="score"><div class="label">P&amp;L</div><div class="v ${cls(pnl)}">${money(pnl)}</div></div>
+        <div class="score hero"><div class="label">Edge · skill</div><div class="v">${money(edge)}</div></div>
+        <div class="score"><div class="label">Luck</div><div class="v ${cls(luck)}">${money(luck)}</div></div>
+      </div>`;
+  }
+
   function finishRound() {
     const r = session.current;
     $('quote-area').hidden = true;
     const b = r.breakdown();
-    const luck = b.pnl - b.edge;
 
     const rows = [];
     let lastRevealed = 0;
     r.turns.forEach((t, i) => {
       if (t.revealed !== lastRevealed) {
         lastRevealed = t.revealed;
-        rows.push(`<tr><td class="reveal-row" colspan="7">Revealed ${itemShort(r.items[t.revealed - 1])}</td></tr>`);
+        rows.push(`<tr><td class="reveal-row" colspan="7">✦ Revealed ${itemShort(r.items[t.revealed - 1])}</td></tr>`);
       }
       const trade = t.timedOut ? 'Timed out' : t.action === 'buy' ? `Sold ${fmt(t.price)}` : t.action === 'sell' ? `Bought ${fmt(t.price)}` : 'Pass';
       const who = t.timedOut ? '—' : t.trader === 'informed' ? `Informed (saw ${fmt1(t.traderView)})` : 'Noise';
       const mkt = t.timedOut ? '—' : `${fmt(t.bid)} @ ${fmt(t.ask)}`;
       const pnl = r.tradePnl(t) - (t.timedOut ? MM.TIMEOUT_FINE : 0);
-      rows.push(`<tr><td>${i + 1}</td><td>${mkt}</td><td>${fmt1(t.fair)}</td><td>${trade}</td><td class="${cls(pnl)}">${pnl ? money(pnl) : '—'}</td><td class="${cls(t.edge)}">${money(t.edge)}</td><td>${esc(who)}</td></tr>`);
+      rows.push(`<tr><td>${i + 1}</td><td>${mkt}</td><td>${fmt1(t.fair)}</td><td>${trade}</td><td class="${cls(pnl)}">${pnl ? money(pnl) : '—'}</td><td class="${cls(t.edge)}">${money(t.edge)}</td><td class="txt">${esc(who)}</td></tr>`);
     });
 
     const last = session.roundNumber === MM.ROUNDS_PER_SESSION;
     $('result-panel').innerHTML = `
-      <div class="settle">
-        <div class="label">Settled at</div>
-        <div class="value num">${r.value}</div>
-        <div class="muted small">You ended ${r.position > 0 ? 'long ' + r.position : r.position < 0 ? 'short ' + -r.position : 'flat'} · ${b.trades} trade${b.trades === 1 ? '' : 's'}</div>
-      </div>
-      <div class="scores">
-        <div class="score"><div class="k">P&amp;L</div><div class="v num ${cls(b.pnl)}">${money(b.pnl)}</div></div>
-        <div class="score hero"><div class="k">Edge (skill)</div><div class="v num ${cls(b.edge)}">${money(b.edge)}</div></div>
-        <div class="score"><div class="k">Luck</div><div class="v num ${cls(luck)}">${money(luck)}</div></div>
-      </div>
-      <ul class="insights">${roundInsights(r, b).map((s) => `<li>${s}</li>`).join('')}</ul>
-      <details>
-        <summary>Quote by quote</summary>
-        <div class="table-wrap" style="margin-top:10px">
-          <table class="qtable">
-            <thead><tr><th>#</th><th>Your market</th><th>Fair</th><th>Trade</th><th>P&amp;L</th><th>Edge</th><th>Trader</th></tr></thead>
-            <tbody>${rows.join('')}</tbody>
-          </table>
+      <div class="card">
+        <div class="settle">
+          <div class="label">Settled at</div>
+          <div class="value">${r.value}</div>
+          <div class="sub">ended ${r.position > 0 ? 'long ' + r.position : r.position < 0 ? 'short ' + -r.position : 'flat'} · ${b.trades} trade${b.trades === 1 ? '' : 's'}</div>
         </div>
-        <p class="muted small">Fair is the expected value given everything you'd seen at that point, including what the trade flow implied.</p>
-      </details>
-      <div class="actions" style="margin-top:14px">
-        <button class="btn primary big" type="button" id="next-btn">${last ? 'See session results' : 'Next round →'}</button>
-      </div>`;
+        ${scoreCells(b.pnl, b.edge)}
+        <ul class="insights">${roundInsights(r, b).map((s) => `<li><span>${s}</span></li>`).join('')}</ul>
+        <details>
+          <summary><span class="label">Quote by quote</span></summary>
+          <div class="table-wrap">
+            <table class="qtable">
+              <thead><tr><th class="label">#</th><th class="label">Market</th><th class="label">Fair</th><th class="label">Trade</th><th class="label">P&amp;L</th><th class="label">Edge</th><th class="label">Trader</th></tr></thead>
+              <tbody>${rows.join('')}</tbody>
+            </table>
+          </div>
+          <p class="small muted">Fair is the expected value given everything you'd seen at that point, including what the trade flow implied.</p>
+        </details>
+      </div>
+      <button class="cta" type="button" id="next-btn">
+        ${sparkSvg(16)}${last ? 'See session results' : 'Next round'}${sparkSvg(16)}
+      </button>`;
     $('result-panel').hidden = false;
     $('next-btn').addEventListener('click', () => {
       if (last) return finishSession();
       session.nextRound();
       startRound();
     });
-    $('next-btn').focus();
+    $('next-btn').focus({ preventScroll: true });
     $('result-panel').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
@@ -702,7 +841,6 @@
   // ---------- session summary ----------
   function finishSession() {
     const s = session.summary();
-    const luck = s.pnl - s.edge;
     const key = 'mm-best-' + settings.difficulty;
     const prevBest = store.get(key, null);
     let bestLine = '';
@@ -726,33 +864,40 @@
 
     const rounds = session.rounds.map((r, i) => {
       const b = r.breakdown();
-      return `<tr><td>${i + 1}</td><td style="font-family:inherit;text-align:left">${esc(r.scenario.name)}</td><td>${r.value}</td><td class="${cls(b.pnl)}">${money(b.pnl)}</td><td class="${cls(b.edge)}">${money(b.edge)}</td></tr>`;
+      return `<tr><td>${i + 1}</td><td class="txt">${esc(r.scenario.name)}</td><td>${r.value}</td><td class="${cls(b.pnl)}">${money(b.pnl)}</td><td class="${cls(b.edge)}">${money(b.edge)}</td></tr>`;
     }).join('');
 
     $('summary').innerHTML = `
-      <h1>Session complete</h1>
-      <p class="muted">${MM.DIFFICULTIES[settings.difficulty].name}${settings.practice ? ' · Practice' : ''} · ${s.trades} trades across ${MM.ROUNDS_PER_SESSION} rounds</p>
-      <div class="scores">
-        <div class="score"><div class="k">P&amp;L</div><div class="v num ${cls(s.pnl)}">${money(s.pnl)}</div></div>
-        <div class="score hero"><div class="k">Edge (skill)</div><div class="v num ${cls(s.edge)}">${money(s.edge)}</div></div>
-        <div class="score"><div class="k">Luck</div><div class="v num ${cls(luck)}">${money(luck)}</div></div>
+      <div class="topbar">
+        <a class="sq-btn" href="../../" aria-label="Back to Kyle's page">
+          <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true"><rect x="1" y="1" width="6.5" height="6.5" rx="2" fill="currentColor"/><rect x="10.5" y="1" width="6.5" height="6.5" rx="2" fill="currentColor"/><rect x="1" y="10.5" width="6.5" height="6.5" rx="2" fill="currentColor"/><rect x="10.5" y="10.5" width="6.5" height="6.5" rx="2" fill="currentColor"/></svg>
+        </a>
+        <div class="topbar-mid"><div class="label">Market Maker</div><div class="sub">${MM.DIFFICULTIES[settings.difficulty].name.toLowerCase()}${settings.practice ? ' · practice' : ''} · ${s.trades} trades</div></div>
+        <div class="ink-dot" aria-hidden="true">${sparkSvg(18)}</div>
       </div>
-      <p class="grade">${grade}</p>
-      <ul class="insights">
-        <li>Average pricing error: <strong class="num">${s.avgPricingError.toFixed(2)}</strong> standard deviations from fair. Under 0.25 is sharp.</li>
-        <li>${flowSplit(s.noise, s.informed, session.rounds.some((r) => r.turns.some((t) => t.trader === 'informed' && t.action !== 'pass')))}</li>
-        ${s.fines ? `<li>Shot clock fines: <strong class="num">${money(-s.fines)}</strong>.</li>` : ''}
-        <li>${esc(bestLine)}</li>
-      </ul>
-      <div class="table-wrap">
-        <table>
-          <thead><tr><th>#</th><th style="text-align:left">Market</th><th>Settled</th><th>P&amp;L</th><th>Edge</th></tr></thead>
-          <tbody>${rounds}</tbody>
-        </table>
+      <h1 class="display">
+        <span class="l1">Session</span>
+        <span class="l2"><span class="tuck">${MM.ROUNDS_PER_SESSION} rounds<br>in the books</span><span class="big">complete.</span></span>
+      </h1>
+      ${scoreCells(s.pnl, s.edge)}
+      <div class="card">
+        <p class="grade">${grade}</p>
+        <ul class="insights">
+          <li><span>Average pricing error was <b class="num">${s.avgPricingError.toFixed(2)}</b> standard deviations from fair. Under 0.25 is sharp.</span></li>
+          <li><span>${flowSplit(s.noise, s.informed, session.rounds.some((r) => r.turns.some((t) => t.trader === 'informed' && t.action !== 'pass')))}</span></li>
+          ${s.fines ? `<li><span>Shot clock fines: <b class="num">${money(-s.fines)}</b>.</span></li>` : ''}
+          <li><span>${esc(bestLine)}</span></li>
+        </ul>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th class="label">#</th><th class="label txt">Market</th><th class="label">Settled</th><th class="label">P&amp;L</th><th class="label">Edge</th></tr></thead>
+            <tbody>${rounds}</tbody>
+          </table>
+        </div>
       </div>
-      <div class="actions">
-        <button class="btn primary big" type="button" id="again-btn">Play again</button>
-        <button class="btn big" type="button" id="settings-btn">Change settings</button>
+      <div class="stack">
+        <button class="cta" type="button" id="again-btn">${sparkSvg(16)}Play again${sparkSvg(16)}</button>
+        <button class="cta ghost" type="button" id="settings-btn">Change settings</button>
       </div>`;
     show('summary');
     $('again-btn').addEventListener('click', startSession);
